@@ -9,7 +9,7 @@ WHERE c.customer_id IN (
   FROM rental r
   JOIN inventory i ON i.inventory_id = r.inventory_id
   JOIN film f ON f.film_id = i.film_id
-  WHERE f.title = 'ACADEMY DINOSAUR'
+  WHERE UPPER(f.title) = 'ACADEMY DINOSAUR'
 );
 
 -- Films with actors who played in > 10 films

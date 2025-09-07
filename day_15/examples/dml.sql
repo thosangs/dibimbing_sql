@@ -8,7 +8,7 @@ WITH ins AS (
 INSERT INTO film_category(film_id, category_id)
 SELECT f.film_id, ins.category_id
 FROM film f, ins
-WHERE f.title = 'ACADEMY DINOSAUR';
+WHERE UPPER(f.title) = 'ACADEMY DINOSAUR';
 
 -- Update: increase rental_rate for that temporary category by 10%
 UPDATE film f
