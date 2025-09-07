@@ -75,7 +75,9 @@ The project is organized into directories for each day of the course:
 ### Day 15: Advanced SQL on dvdrental
 
 - **Core Topics**: DML Part 2, Aggregations, Subqueries, CTEs, Ranking
-- **Plus**: String functions (LEFT, RIGHT, SUBSTRING, REPLACE, CONCAT, UPPER, LOWER, LENGTH) and Date/Time (NOW, CURRENT_TIMESTAMP, INTERVAL, DATE_TRUNC, EXTRACT)
+- **Plus**:
+  - String functions (LEFT, RIGHT, SUBSTRING, REPLACE, CONCAT, UPPER, LOWER, LENGTH)
+  - Date/Time (NOW, CURRENT_TIMESTAMP, INTERVAL, DATE_TRUNC, EXTRACT)
 
 ### Day 16: Window Functions on dvdrental
 
