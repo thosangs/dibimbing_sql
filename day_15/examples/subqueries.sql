@@ -23,3 +23,14 @@ WHERE f.film_id IN (
   )
 );
 
+
+-- Top 5 most prolific actors by film count (subquery in FROM)
+SELECT a.actor_id, a.first_name, a.last_name, actor_stats.film_count
+FROM (
+  SELECT fa.actor_id, COUNT(*) AS film_count
+  FROM film_actor fa
+  GROUP BY fa.actor_id
+) AS actor_stats
+JOIN actor a ON a.actor_id = actor_stats.actor_id
+ORDER BY actor_stats.film_count DESC, a.actor_id
+LIMIT 5;
