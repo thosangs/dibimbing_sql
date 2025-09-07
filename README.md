@@ -59,7 +59,7 @@ The project is organized into directories for each day of the course:
 
 - `day_15/`: Advanced SQL using dvdrental
   - `exercises/exercises.sql`: Problems using dvdrental tables
-  - `examples/`: Runnable examples (DML, subqueries, CTEs, strings, datetime)
+  - `examples/`: Runnable examples (DML, subqueries, CTEs, strings, datetime, numeric)
 - `day_16/`: Window functions on dvdrental
   - `exercises/exercises.sql`: Window problems
   - `examples/`: Intro, ranking, navigation, aggregates, window frames
@@ -78,6 +78,7 @@ The project is organized into directories for each day of the course:
 - **Plus**:
   - String functions (LEFT, RIGHT, SUBSTRING, REPLACE, CONCAT, UPPER, LOWER, LENGTH)
   - Date/Time (NOW, CURRENT_TIMESTAMP, INTERVAL, DATE_TRUNC, EXTRACT)
+  - Numeric/Math (ABS, ROUND, MOD, SQRT, FLOOR, CEIL)
 
 ### Day 16: Window Functions on dvdrental
 

@@ -28,3 +28,18 @@
 -- 7) Rank films by number of rentals within each category (most rented first).
 
 -- 8) Using ROW_NUMBER(), find each customer's second most recent rental (by rental_date).
+
+-- Numeric/Math Functions
+
+-- 9) For each customer, compute the average payment and ROUND it to 2 decimals.
+--    List any 10 customers with their rounded average.
+
+-- 10) For films, show rental_rate along with FLOOR and CEIL values.
+--     List any 10 films by film_id.
+
+-- 11) Show the ABS difference between each payment amount and the overall average payment.
+--     Return the top 10 largest differences with payment_id and amount.
+
+-- 12) Use MOD to bucket rentals by rental_id % 5 and count rentals per bucket.
+
+-- 13) Compute SQRT of film length (minutes) for films with non-null length; list any 10.

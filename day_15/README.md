@@ -56,4 +56,6 @@ Use this to connect locally:
 - **String Functions**: `LEFT`, `RIGHT`, `SUBSTRING`, `REPLACE`, `CONCAT`, `UPPER`, `LOWER`, `LENGTH`
 - **Date/Time Functions**: `NOW`, `CURRENT_TIMESTAMP`, add/subtract `INTERVAL`, `DATE_TRUNC`, `EXTRACT`
 
+- **Numeric/Math Functions**: `ABS`, `ROUND`, `MOD`, `SQRT`, `FLOOR`, `CEIL`
+
 See `day_15/examples/` for runnable examples against dvdrental.
