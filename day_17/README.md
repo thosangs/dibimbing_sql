@@ -1,39 +1,41 @@
 # 🗓️ Day 17: Live Coding on dvdrental
 
-Welcome to the final day! We'll apply CTEs, subqueries, joins, and window functions on dvdrental.
+Welcome to the final day! In the next 3 hours, we will solve a continuous, story-driven set of analytics and business problems using dvdrental. We'll start with easy exploratory questions, move to medium business decisions (including cohort and churn), and finish with hard windowing tasks using custom frames.
 
 ---
 
-### 📝 Session Format
+### 🎭 Story: The New Release Push
 
-This session is designed to be highly interactive. We will tackle a series of complex, multi-step business problems together. The goal is not just to get the right answer, but to understand the process of breaking down a complex request into manageable SQL steps.
-
-We will focus on:
-
-- **Problem Decomposition**: How to read a business request and translate it into a SQL query plan.
-- **Combining Techniques**: Using CTEs to structure logic, window functions for advanced analysis, and joins to bring data together.
-- **Query Optimization**: Discussing different approaches and why one might be more efficient than another.
-
-### 🧩 The Problems We'll Solve
-
-1.  **Customer Cohort Analysis**:
-
-    - **Business Goal**: Understand customer retention over time.
-    - **SQL Techniques**: This will require grouping by date periods, using conditional aggregation, and likely a `LEFT JOIN` to see activity month over month.
-
-2.  **Inventory Restock Alert**:
-
-    - **Business Goal**: Proactively manage inventory by identifying low-stock items and their recent sales velocity.
-    - **SQL Techniques**: We'll combine filtering (`WHERE stock_quantity < 10`), date arithmetic, and window functions to calculate a moving sales average.
-
-3.  **Market Basket Analysis ("Customers Who Bought X Also Bought Y")**:
-    - **Business Goal**: Uncover purchasing patterns to power a recommendation engine.
-    - **SQL Techniques**: This is a classic analysis that involves `SELF JOIN`s on the `order_items` table, CTEs to isolate customer groups, and aggregation to find the most frequently co-purchased items.
+The dvdrental chain has launched a “New Release Push” campaign. Leadership wants to understand customer growth, engagement, churn, and inventory needs, then evaluate campaign performance and forecast demand. You are the analyst building insights step by step.
 
 ---
 
-### 🎯 Goal for Today
+### 🧭 Session Structure
 
-The objective is to build your confidence in tackling real-world data problems from scratch. By the end of this session, you should feel comfortable translating ambiguous business requests into precise, efficient, and readable SQL queries.
+- **Easy (8)**: Exploratory analytics to get the lay of the land
+- **Medium (6)**: Business decisions, including cohorts and churn analysis
+- **Hard (4)**: Advanced windowing with custom frames for rolling metrics and contribution curves
 
-Connect with: `psql "postgresql://user:password@localhost:5432/dvdrental"` and open `exercises/live_coding_problems.sql`.
+All problems are in `day_17/exercises/live_coding_problems.sql` and can be solved against the dvdrental database.
+
+---
+
+### 🛠️ Techniques We'll Use
+
+- Joins, filters, grouping, conditional aggregation
+- Subqueries and CTEs for structure and readability
+- Window functions with custom frames (ROWS/RANGE) for rolling and cumulative analytics
+
+---
+
+### 📡 How to Run
+
+Connect with:
+
+`psql "postgresql://user:password@localhost:5432/dvdrental"`
+
+Open:
+
+`day_17/exercises/live_coding_problems.sql`
+
+Work through Easy → Medium → Hard in order to follow the story.
