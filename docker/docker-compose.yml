@@ -11,3 +11,25 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+
+  sqlpad:
+    image: sqlpad/sqlpad:7.5.7
+    hostname: "sqlpad"
+    ports:
+      - "3000:3000"
+    environment:
+      SQLPAD_ADMIN: ${SQLPAD_ADMIN}
+      SQLPAD_ADMIN_PASSWORD: ${SQLPAD_ADMIN_PASSWORD}
+      SQLPAD_APP_LOG_LEVEL: debug
+      SQLPAD_WEB_LOG_LEVEL: warn
+      SQLPAD_SEED_DATA_PATH: /etc/sqlpad/seed-data
+      SQLPAD_CONNECTIONS__pgdemo__name: ${POSTGRES_DB}
+      SQLPAD_CONNECTIONS__pgdemo__driver: postgres
+      SQLPAD_CONNECTIONS__pgdemo__host: postgres
+      SQLPAD_CONNECTIONS__pgdemo__database: ${POSTGRES_DB}
+      SQLPAD_CONNECTIONS__pgdemo__username: ${POSTGRES_USER}
+      SQLPAD_CONNECTIONS__pgdemo__password: ${POSTGRES_PASSWORD}
+      SQLPAD_CONNECTIONS__pgdemo__multiStatementTransactionEnabled: "true"
+      SQLPAD_CONNECTIONS__pgdemo__idleTimeoutSeconds: 86400
+    depends_on:
+      - postgres

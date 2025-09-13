@@ -6,11 +6,15 @@ help:
 	@echo "Commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-postgres: ## Run a Postgres container
+setup: ## Run a Postgres container
+	@echo "Making env file..."
+	cp .env.example .env
+
+up: ## Run a Postgres container
 	@echo "Starting Postgres container..."
 	docker-compose -f docker/docker-compose.yml --env-file .env up -d
 
-postgres-down: ## Stop Postgres container
+down: ## Stop Postgres container
 	@echo "Stopping Postgres container..."
 	docker-compose -f docker/docker-compose.yml down
 

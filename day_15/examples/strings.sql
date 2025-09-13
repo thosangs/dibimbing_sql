@@ -43,3 +43,34 @@ FROM film
 ORDER BY title_len DESC, title
 LIMIT 10;
 
+
+-- LIKE: titles starting with 'A'
+SELECT title
+FROM film
+WHERE title LIKE 'A%'
+ORDER BY film_id
+LIMIT 10;
+
+-- LIKE with wildcards: '%' any length, '_' single char
+-- Example: titles ending with 'MAN'
+SELECT title
+FROM film
+WHERE title LIKE '%MAN'
+ORDER BY film_id
+LIMIT 10;
+
+-- ILIKE: case-insensitive pattern match
+-- Example: titles starting with 'aca' regardless of case
+SELECT title
+FROM film
+WHERE title ILIKE 'aca%'
+ORDER BY film_id
+LIMIT 10;
+
+-- NOT LIKE: exclude titles containing 'THE'
+SELECT title
+FROM film
+WHERE title NOT LIKE '%THE%'
+ORDER BY film_id
+LIMIT 10;
+
