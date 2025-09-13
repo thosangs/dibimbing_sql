@@ -1,5 +1,3 @@
-include .env
-
 .PHONY: help postgres postgres-down clean seed
 
 help:
