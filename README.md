@@ -26,24 +26,29 @@ Make sure you have the following software installed on your system:
     ```
 
 2.  **Create the environment file:**
-    This project uses a `.env` file to provide database credentials to Docker Compose.
+    This project uses a `.env` file to provide credentials to Docker Compose.
 
-    Create a file named `.env` in the project root with:
+    Create a file named `.env` in the project root with at least:
 
     ```
+    # Postgres
     POSTGRES_DB=dvdrental
     POSTGRES_USER=user
     POSTGRES_PASSWORD=password
+
+    # SQLPad (web UI at http://localhost:3000)
+    SQLPAD_ADMIN=admin@example.com
+    SQLPAD_ADMIN_PASSWORD=changeme
     ```
 
 3.  **Start the database:**
-    Use the provided Makefile to start the PostgreSQL container.
+    Use the provided Makefile to start the services.
 
     ```sh
-    make postgres
+    make up
     ```
 
-    This starts PostgreSQL 17 on `localhost:5432` and restores the dvdrental sample data automatically on first run.
+    This starts PostgreSQL 17 on `localhost:5432` and restores the dvdrental sample data automatically on first run. It also starts SQLPad on `http://localhost:3000`.
 
 4.  **Connect to the database:**
 
@@ -101,9 +106,9 @@ The project is organized into directories for each day of the course:
 This project includes a `Makefile` to simplify common tasks:
 
 - `make help`: Shows a list of available commands.
-- `make postgres`: Starts the PostgreSQL container in the background.
-- `make postgres-down`: Stops the PostgreSQL container.
-- `make clean`: Stops and removes the container, network, and data volume.
+- `make up`: Starts the services (PostgreSQL and SQLPad) in the background.
+- `make down`: Stops the services.
+- `make clean`: Stops and removes the containers, network, and data volume.
 
 ---
 
