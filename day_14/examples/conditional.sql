@@ -1,49 +1,49 @@
--- Day 14 - Conditional Logic Examples
--- Datasets: film (dvdrental) and payments/customers (e-commerce sim)
+-- Day 14 - Conditional Logic Examples (dvdrental)
 
--- 1) CASE WHEN categorizing film length (dvdrental-style example per logic.md)
+-- 1) CASE WHEN categorizing film length
 SELECT
-  title,
-  length,
+  f.title,
+  f.length,
   CASE
-    WHEN length <= 50 THEN 'Short'
-    WHEN length > 50 AND length <= 120 THEN 'Medium'
+    WHEN f.length <= 50 THEN 'Short'
+    WHEN f.length > 50 AND f.length <= 120 THEN 'Medium'
     ELSE 'Long'
   END AS movie_length_category
-FROM film;
+FROM film f;
 
--- 2) COALESCE to handle nulls (customer country)
+-- 2) COALESCE to show address2 or 'N/A'
 SELECT
-  customer_id,
-  first_name,
-  last_name,
-  COALESCE(country, 'Unknown') AS country_label
-FROM customers
-ORDER BY customer_id
+  c.customer_id,
+  c.first_name,
+  c.last_name,
+  COALESCE(a.address2, 'N/A') AS address2_label
+FROM customer c
+JOIN address a ON a.address_id = c.address_id
+ORDER BY c.customer_id
 LIMIT 50;
 
--- 3) GREATEST/LEAST to clamp values (example on payment amounts)
+-- 3) GREATEST/LEAST to clamp payment amounts
 SELECT
-  payment_id,
-  amount,
-  GREATEST(amount, 0) AS amount_floor_zero,
-  LEAST(amount, 1000) AS amount_cap_1000
-FROM payments
-ORDER BY payment_id
+  p.payment_id,
+  p.amount,
+  GREATEST(p.amount, 0) AS amount_floor_zero,
+  LEAST(p.amount, 10.00) AS amount_cap_10
+FROM payment p
+ORDER BY p.payment_id
 LIMIT 50;
 
 -- 4) CASE with ranges for payment tiers
 SELECT
-  payment_id,
-  amount,
+  p.payment_id,
+  p.amount,
   CASE
-    WHEN amount < 20 THEN 'Bronze'
-    WHEN amount < 100 THEN 'Silver'
-    WHEN amount < 250 THEN 'Gold'
+    WHEN p.amount < 2 THEN 'Bronze'
+    WHEN p.amount < 5 THEN 'Silver'
+    WHEN p.amount < 8 THEN 'Gold'
     ELSE 'Platinum'
   END AS payment_tier
-FROM payments
-ORDER BY payment_id
+FROM payment p
+ORDER BY p.payment_id
 LIMIT 50;
 
 

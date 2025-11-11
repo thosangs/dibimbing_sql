@@ -25,14 +25,11 @@ This module focuses on DML with emphasis on advanced `SELECT` usage:
 
 ## 💾 Dataset
 
-Assumes an e-commerce simulation with:
+This module now uses dvdrental (PostgreSQL sample). Key tables:
 
-- `products(product_id, product_name, price, category_id, stock)`
-- `categories(category_id, category_name)`
-- `customers(customer_id, first_name, last_name, country)`
-- `payments(payment_id, customer_id, amount, payment_date)`
-
-Note: The `conditional.sql` also includes a `film` example (dvdrental-style) to match the logic’s CASE demo.
+- `film`, `category`, `film_category`
+- `customer`, `address`, `city`, `country`
+- `payment`
 
 ## ▶️ How to run
 

@@ -1,14 +1,13 @@
--- Day 14 - UNION vs UNION ALL Examples
--- Dataset: customers, products
+-- Day 14 - UNION vs UNION ALL Examples (dvdrental)
 
 -- 1) UNION ALL: keep duplicates
-SELECT first_name AS entity_name FROM customers
+SELECT first_name AS entity_name FROM customer
 UNION ALL
-SELECT product_name AS entity_name FROM products;
+SELECT title AS entity_name FROM film;
 
 -- 2) UNION: remove duplicates
-SELECT first_name AS entity_name FROM customers
+SELECT first_name AS entity_name FROM customer
 UNION
-SELECT product_name AS entity_name FROM products;
+SELECT title AS entity_name FROM film;
 
 
