@@ -42,6 +42,13 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
-      - "5050:5050"
+      - "5050:80"
     depends_on:
       - postgres
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - pgadmin-log:/var/log/pgadmin
+
+volumes:
+  pgadmin-data:
+  pgadmin-log:
