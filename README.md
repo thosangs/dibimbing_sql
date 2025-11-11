@@ -39,6 +39,10 @@ Make sure you have the following software installed on your system:
     # SQLPad (web UI at http://localhost:3000)
     SQLPAD_ADMIN=admin@example.com
     SQLPAD_ADMIN_PASSWORD=changeme
+
+    # pgAdmin (web UI at http://localhost:5050)
+    PGADMIN_DEFAULT_EMAIL=admin@example.com
+    PGADMIN_DEFAULT_PASSWORD=changeme
     ```
 
 3.  **Start the database:**
@@ -48,7 +52,7 @@ Make sure you have the following software installed on your system:
     make up
     ```
 
-    This starts PostgreSQL 17 on `localhost:5432` and restores the dvdrental sample data automatically on first run. It also starts SQLPad on `http://localhost:3000`.
+    This starts PostgreSQL 17 on `localhost:5432` and restores the dvdrental sample data automatically on first run. It also starts SQLPad on `http://localhost:3000` and pgAdmin on `http://localhost:5050`.
 
 4.  **Connect to the database:**
 
@@ -106,9 +110,22 @@ The project is organized into directories for each day of the course:
 This project includes a `Makefile` to simplify common tasks:
 
 - `make help`: Shows a list of available commands.
-- `make up`: Starts the services (PostgreSQL and SQLPad) in the background.
+- `make up`: Starts the services (PostgreSQL, SQLPad, pgAdmin) in the background.
 - `make down`: Stops the services.
 - `make clean`: Stops and removes the containers, network, and data volume.
+
+### pgAdmin
+
+- URL: `http://localhost:5050`
+- Login with the credentials you set in `.env`:
+  - `PGADMIN_DEFAULT_EMAIL`
+  - `PGADMIN_DEFAULT_PASSWORD`
+- Add a new server in pgAdmin:
+  - Name: `dvdrental`
+  - Host: `postgres`
+  - Port: `5432`
+  - Username: `${POSTGRES_USER}`
+  - Password: `${POSTGRES_PASSWORD}`
 
 ---
 
