@@ -6,14 +6,18 @@ TMP_DIR="/tmp/dvdrental"
 
 mkdir -p "$TMP_DIR"
 
-# Prefer local zip if available, otherwise download .tar
-if [ -f "$LOCAL_ZIP" ]; then
-  echo "Found local dvdrental.zip at $LOCAL_ZIP. Extracting..."
-  unzip -o "$LOCAL_ZIP" -d "$TMP_DIR" >/dev/null
-  if [ ! -f "$TMP_DIR/dvdrental.tar" ]; then
-    echo "dvdrental.tar not found after unzip" >&2
-    exit 1
-  fi
+# Only use local zip; error if missing
+if [ ! -f "$LOCAL_ZIP" ]; then
+  echo "Expected local archive at $LOCAL_ZIP but not found." >&2
+  exit 1
+fi
+
+echo "Extracting dvdrental.zip..."
+unzip -o "$LOCAL_ZIP" -d "$TMP_DIR" >/dev/null
+
+if [ ! -f "$TMP_DIR/dvdrental.tar" ]; then
+  echo "dvdrental.tar not found after unzip" >&2
+  exit 1
 fi
 
 POSTGRES_DB="${POSTGRES_DB:-dvdrental}"
@@ -29,5 +33,3 @@ pg_restore \
   -v "$TMP_DIR/dvdrental.tar"
 
 echo "dvdrental restore completed."
-
-

@@ -7,5 +7,5 @@ RUN apt-get update \
 COPY init-dvdrental.sh /docker-entrypoint-initdb.d/init-dvdrental.sh
 RUN chmod +x /docker-entrypoint-initdb.d/init-dvdrental.sh
 
-
+COPY dvdrental.zip /docker/dvdrental.zip
 
