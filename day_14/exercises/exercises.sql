@@ -42,4 +42,10 @@
 -- 14) UNION (distinct): same as above but unique values only
 -- TODO
 
+Bonus pertanyaan simple
+Cholifiyah
+Handika
+Rio
 
+Bonus Raise hands
+Handika Sulton
