@@ -1,0 +1,23 @@
+{
+  "name": "dibimbing-sql-slides",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev13": "slidev --open day13.md",
+    "dev14": "slidev --open day14.md",
+    "dev15": "slidev --open day15.md",
+    "dev16": "slidev --open day16.md",
+    "dev17": "slidev --open day17.md",
+    "build:all": "npm run build13 && npm run build14 && npm run build15 && npm run build16 && npm run build17",
+    "build13": "slidev build day13.md --out ../docs/day13 --base /dibimbing_sql/day13/",
+    "build14": "slidev build day14.md --out ../docs/day14 --base /dibimbing_sql/day14/",
+    "build15": "slidev build day15.md --out ../docs/day15 --base /dibimbing_sql/day15/",
+    "build16": "slidev build day16.md --out ../docs/day16 --base /dibimbing_sql/day16/",
+    "build17": "slidev build day17.md --out ../docs/day17 --base /dibimbing_sql/day17/"
+  },
+  "dependencies": {
+    "@slidev/cli": "^53.0.0",
+    "@slidev/theme-default": "^0.25.0",
+    "vue": "^3.5.0"
+  }
+}

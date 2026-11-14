@@ -4,328 +4,192 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SQL Kelas — Dibimbing</title>
-  <meta name="description" content="Materi SQL intensif: dari fondasi database hingga window functions. Dataset dvdrental PostgreSQL." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #09090b;
-      --bg-soft: #111113;
-      --card: #18181b;
-      --border: #27272a;
-      --text: #fafafa;
-      --muted: #71717a;
-      --blue: #3b82f6;
-      --blue-light: #93c5fd;
-      --blue-dim: rgba(59,130,246,0.12);
-      --code-bg: #0d0d10;
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --blue: #60a5fa;
+      --blue-dim: rgba(96,165,250,0.12);
+      --blue-strong: #3b82f6;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
       background: var(--bg);
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1.3px, transparent 1.3px);
+      background-size: 24px 24px;
       color: var(--text);
-      line-height: 1.6;
+      min-height: 100vh;
     }
-    a { color: var(--blue-light); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 
-    /* NAV */
-    nav {
-      border-bottom: 2px solid var(--border);
-      padding: 14px 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--bg);
-    }
-    .nav-brand {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700; font-size: 14px;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--blue); text-decoration: none;
-    }
-    .nav-brand:hover { text-decoration: none; }
-    .nav-link {
-      font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-    }
-    .nav-link a { color: var(--muted); }
-    .nav-link a:hover { color: var(--text); }
-
-    /* HERO */
+    /* Hero */
     .hero {
-      padding: 80px 24px 60px;
+      padding: 72px 0 48px;
       text-align: center;
       border-bottom: 2px solid var(--border);
-      background:
-        radial-gradient(700px 400px at 50% -5%, rgba(59,130,246,0.18), transparent 70%);
     }
-    .hero-eyebrow {
+    .eyebrow {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.3em; text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
       color: var(--blue);
-      border: 1px solid var(--blue);
-      display: inline-block;
-      padding: 4px 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
-    .hero h1 {
-      font-size: clamp(32px, 6vw, 64px);
-      font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
-      color: var(--text);
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
       margin-bottom: 16px;
     }
-    .hero h1 span { color: var(--blue); }
-    .hero p {
-      font-size: 18px; color: var(--muted); max-width: 600px; margin: 0 auto 32px;
-    }
-    .badge-row {
-      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-      margin-top: 24px;
-    }
-    .badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      background: var(--card); border: 1px solid var(--border);
-      padding: 5px 12px; color: var(--muted);
-    }
+    h1 span { color: var(--blue); }
+    .sub { color: var(--muted); font-size: 1.05rem; }
 
-    /* GRID */
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    .section { padding: 60px 0; border-bottom: 2px solid var(--border); }
-    .section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--blue); margin-bottom: 32px;
-    }
-
-    .days-grid {
+    /* Grid */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 0;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      padding: 48px 0 72px;
     }
-    .day-card {
-      border: 2px solid var(--border);
-      margin: -1px; /* collapse borders */
-      padding: 28px;
+    .card {
+      display: block;
       background: var(--card);
-      transition: background 0.15s;
-      display: flex; flex-direction: column;
+      border: 2px solid var(--border);
+      padding: 24px;
       text-decoration: none;
+      color: var(--text);
+      box-shadow: 4px 4px 0 var(--border);
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
     }
-    .day-card:hover { background: #1f1f23; text-decoration: none; }
-    .day-num {
+    .card:hover {
+      border-color: var(--blue);
+      box-shadow: 4px 4px 0 var(--blue-strong);
+      transform: translateY(-2px);
+    }
+    .day-badge {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.25em; text-transform: uppercase;
-      color: var(--blue); margin-bottom: 10px;
-    }
-    .day-title {
-      font-size: 18px; font-weight: 700; color: var(--text);
-      margin-bottom: 14px; line-height: 1.3;
-    }
-    .day-topics {
-      list-style: none; flex: 1;
-    }
-    .day-topics li {
-      font-size: 13px; color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      padding: 4px 0;
-      border-top: 1px solid var(--border);
-    }
-    .day-topics li:first-child { border-top: none; }
-    .day-cta {
-      margin-top: 20px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.15em; text-transform: uppercase;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--blue);
+      margin-bottom: 10px;
     }
-
-    /* DATASET */
-    .dataset-box {
-      border: 2px solid var(--border);
-      padding: 32px;
-      background: var(--card);
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
     }
-    .dataset-box h2 {
-      font-size: 20px; font-weight: 700; margin-bottom: 12px;
+    .topics {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topics li {
       font-family: 'JetBrains Mono', monospace;
-      text-transform: uppercase; letter-spacing: 0.05em;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      background: var(--bg);
     }
-    .dataset-box p { color: var(--muted); margin-bottom: 20px; font-size: 15px; }
-    pre.setup {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      padding: 20px;
+    .footer {
+      text-align: center;
+      padding: 32px 0;
+      border-top: 2px solid var(--border);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      color: var(--blue-light);
-      overflow-x: auto;
-      white-space: pre;
-    }
-    .table-list {
-      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px;
-    }
-    .table-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
+      font-size: 0.75rem;
       color: var(--muted);
     }
-
-    /* FOOTER */
-    footer {
-      border-top: 2px solid var(--border);
-      padding: 32px 24px;
-      text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; color: var(--muted);
-    }
-    footer a { color: var(--blue); }
-
-    @media (max-width: 600px) {
-      .hero { padding: 50px 16px 40px; }
-      .days-grid { grid-template-columns: 1fr; }
-      .day-card { margin: 0; border-bottom: none; }
-      .day-card:last-child { border-bottom: 2px solid var(--border); }
-    }
+    .footer a { color: var(--blue); text-decoration: none; }
   </style>
 </head>
 <body>
-  <nav>
-    <span class="nav-brand">DIBIMBING SQL</span>
-    <span class="nav-link"><a href="https://github.com/thosangs/dibimbing_sql" target="_blank">GitHub →</a></span>
-  </nav>
-
-  <section class="hero">
-    <div class="hero-eyebrow">Practical SQL Training</div>
-    <h1>SQL Kelas<br><span>Dibimbing</span></h1>
-    <p>Materi SQL intensif 5 hari — dari fondasi relational database hingga window functions lanjutan. Dataset nyata, contoh query real.</p>
-    <div class="badge-row">
-      <span class="badge">PostgreSQL</span>
-      <span class="badge">dvdrental</span>
-      <span class="badge">Day 13 → 17</span>
-      <span class="badge">hands-on</span>
+  <div class="container">
+    <div class="hero">
+      <div class="eyebrow">// Dibimbing SQL · Day 13–17</div>
+      <h1>SQL Kelas — <span>Dibimbing</span></h1>
+      <p class="sub">5 hari intensif. Dataset dvdrental (PostgreSQL).</p>
     </div>
-  </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-label">// Materi Per Hari</div>
-      <div class="days-grid">
-        <a class="day-card" href="day13.html">
-          <div class="day-num">Day 13</div>
-          <div class="day-title">Introduction to Databases</div>
-          <ul class="day-topics">
-            <li>Relational model: tables, keys, FK</li>
-            <li>ACID transactions</li>
-            <li>DDL: CREATE / ALTER / DROP / INDEX</li>
-            <li>DML: INSERT / UPDATE / DELETE / UPSERT</li>
-            <li>Column types & materialization strategies</li>
-          </ul>
-          <div class="day-cta">Buka Materi →</div>
-        </a>
-        <a class="day-card" href="day14.html">
-          <div class="day-num">Day 14</div>
-          <div class="day-title">Basic &amp; Intermediate SQL</div>
-          <ul class="day-topics">
-            <li>WHERE, IN, BETWEEN, LIKE, IS NULL</li>
-            <li>GROUP BY, HAVING, aggregate functions</li>
-            <li>CASE WHEN, COALESCE, GREATEST/LEAST</li>
-            <li>INNER / LEFT / RIGHT / FULL OUTER / CROSS JOIN</li>
-            <li>UNION vs UNION ALL</li>
-          </ul>
-          <div class="day-cta">Buka Materi →</div>
-        </a>
-        <a class="day-card" href="day15.html">
-          <div class="day-num">Day 15</div>
-          <div class="day-title">Advanced SQL Queries</div>
-          <ul class="day-topics">
-            <li>Subqueries: scalar, correlated, IN/ANY/ALL</li>
-            <li>CTEs (WITH clause)</li>
-            <li>ROW_NUMBER / RANK / DENSE_RANK</li>
-            <li>String functions: LEFT, SUBSTRING, CONCAT</li>
-            <li>Date/time &amp; math functions</li>
-          </ul>
-          <div class="day-cta">Buka Materi →</div>
-        </a>
-        <a class="day-card" href="day16.html">
-          <div class="day-num">Day 16</div>
-          <div class="day-title">Window Functions</div>
-          <ul class="day-topics">
-            <li>OVER (PARTITION BY ... ORDER BY ...)</li>
-            <li>Frame clauses: ROWS / RANGE / GROUPS</li>
-            <li>Ranking: ROW_NUMBER, RANK, DENSE_RANK, NTILE</li>
-            <li>Navigation: LAG, LEAD, FIRST_VALUE, LAST_VALUE</li>
-            <li>Aggregate windows: running total, moving avg</li>
-          </ul>
-          <div class="day-cta">Buka Materi →</div>
-        </a>
-        <a class="day-card" href="day17.html">
-          <div class="day-num">Day 17</div>
-          <div class="day-title">Live Coding: Analytics</div>
-          <ul class="day-topics">
-            <li>Story-driven: "New Release Push" campaign</li>
-            <li>Cohort retention analysis</li>
-            <li>Churn &amp; reactivation detection</li>
-            <li>7-day rolling windows</li>
-            <li>Easy → Medium → Hard progression</li>
-          </ul>
-          <div class="day-cta">Buka Materi →</div>
-        </a>
-      </div>
+    <div class="grid">
+      <a class="card" href="./day13/">
+        <div class="day-badge">Day 13</div>
+        <h2>Intro to Databases</h2>
+        <ul class="topics">
+          <li>RDBMS vs NoSQL</li>
+          <li>ACID</li>
+          <li>DDL</li>
+          <li>DML</li>
+          <li>Column Types</li>
+          <li>Materialized View</li>
+        </ul>
+      </a>
+
+      <a class="card" href="./day14/">
+        <div class="day-badge">Day 14</div>
+        <h2>Basic & Intermediate SQL</h2>
+        <ul class="topics">
+          <li>WHERE / IN / LIKE</li>
+          <li>GROUP BY / HAVING</li>
+          <li>CASE WHEN</li>
+          <li>JOIN (all types)</li>
+          <li>UNION</li>
+        </ul>
+      </a>
+
+      <a class="card" href="./day15/">
+        <div class="day-badge">Day 15</div>
+        <h2>Advanced SQL</h2>
+        <ul class="topics">
+          <li>Subqueries</li>
+          <li>CTEs</li>
+          <li>ROW_NUMBER / RANK</li>
+          <li>String Functions</li>
+          <li>Date Functions</li>
+        </ul>
+      </a>
+
+      <a class="card" href="./day16/">
+        <div class="day-badge">Day 16</div>
+        <h2>Window Functions</h2>
+        <ul class="topics">
+          <li>OVER / PARTITION BY</li>
+          <li>Frame Clauses</li>
+          <li>LAG / LEAD</li>
+          <li>Running Total</li>
+          <li>Moving Average</li>
+        </ul>
+      </a>
+
+      <a class="card" href="./day17/">
+        <div class="day-badge">Day 17</div>
+        <h2>Live Coding</h2>
+        <ul class="topics">
+          <li>Cohort Analysis</li>
+          <li>Churn Rate</li>
+          <li>Rolling Windows</li>
+          <li>Campaign Impact</li>
+          <li>Easy → Hard</li>
+        </ul>
+      </a>
     </div>
-  </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-label">// Dataset &amp; Setup</div>
-      <div class="dataset-box">
-        <h2>dvdrental</h2>
-        <p>Semua contoh menggunakan <strong>dvdrental</strong> — database rental film PostgreSQL yang realistis dengan 15+ tabel dan data transaksi nyata.</p>
-        <pre class="setup"># Clone repo
-git clone https://github.com/thosangs/dibimbing_sql.git
-cd dibimbing_sql
-
-# Jalankan PostgreSQL + dvdrental via Docker
-docker compose up -d
-
-# Koneksi
-psql "$POSTGRES_URL"
-
-# Jalankan contoh per day
-psql "$POSTGRES_URL" -f day_13/examples/ddl.sql</pre>
-        <div class="table-list">
-          <span class="table-pill">actor</span>
-          <span class="table-pill">film</span>
-          <span class="table-pill">film_actor</span>
-          <span class="table-pill">film_category</span>
-          <span class="table-pill">category</span>
-          <span class="table-pill">inventory</span>
-          <span class="table-pill">rental</span>
-          <span class="table-pill">payment</span>
-          <span class="table-pill">customer</span>
-          <span class="table-pill">address</span>
-          <span class="table-pill">city</span>
-          <span class="table-pill">country</span>
-          <span class="table-pill">staff</span>
-          <span class="table-pill">store</span>
-          <span class="table-pill">language</span>
-        </div>
-      </div>
+    <div class="footer">
+      <a href="https://github.com/thosangs/dibimbing_sql">github.com/thosangs/dibimbing_sql</a>
+      &nbsp;·&nbsp; dvdrental PostgreSQL
     </div>
-  </section>
-
-  <footer>
-    <a href="https://github.com/thosangs/dibimbing_sql" target="_blank">github.com/thosangs/dibimbing_sql</a>
-    &nbsp;·&nbsp; Dibimbing SQL Training &nbsp;·&nbsp; PostgreSQL + dvdrental
-  </footer>
+  </div>
 </body>
 </html>
