@@ -232,19 +232,17 @@ VALUES ('TRAIN', 'DEMO')
 RETURNING actor_id, first_name, last_name;
 
 -- UPDATE dengan RETURNING
-UPDATE film
-SET rental_rate = rental_rate + 0.50
+UPDATE film SET rental_rate = rental_rate + 0.50
 WHERE rating IN ('G', 'PG')
 RETURNING film_id, title, rental_rate;
 
--- UPSERT (ON CONFLICT)
+-- UPSERT (ON CONFLICT DO UPDATE)
 INSERT INTO actor (actor_id, first_name, last_name)
 VALUES (99999, 'UPSERT', 'DEMO')
 ON CONFLICT (actor_id) DO UPDATE
-SET first_name = EXCLUDED.first_name,
-    last_update = now();
+  SET first_name = EXCLUDED.first_name;
 
-ROLLBACK; -- demo aman, tidak mengubah data
+ROLLBACK;
 ```
 
 ---
@@ -294,26 +292,21 @@ ROLLBACK; -- demo aman, tidak mengubah data
 
 ```sql
 CREATE TABLE typing_demo (
-    id          serial PRIMARY KEY,
-    code        char(5),              -- fixed-length, space-padded
-    name        varchar(50),          -- variable-length with limit
-    description text,                 -- unlimited
-    active      boolean DEFAULT true,
-    qty         integer,
-    price       numeric(10,2),        -- fixed precision
-    created_on  date DEFAULT current_date,
-    updated_at  timestamptz DEFAULT now(),
-    duration    interval
+    id         serial PRIMARY KEY,
+    code       char(5),           -- fixed-length, space-padded
+    name       varchar(50),
+    active     boolean DEFAULT true,
+    price      numeric(10,2),     -- exact decimal
+    updated_at timestamptz DEFAULT now(),
+    duration   interval
 );
 
--- Casting dan operasi tipe
+-- Casting antar tipe
 SELECT
-    id,
-    rtrim(code)                      AS code_trimmed,  -- hilangkan padding CHAR
-    qty::bigint * 1000               AS qty_milliunits,
-    (price * qty)::numeric(12,2)     AS extended_price,
-    created_on + duration            AS created_plus_duration,
-    active::int                      AS active_as_int   -- true→1, false→0
+    rtrim(code)               AS code_trimmed,
+    price::numeric(12,2)      AS price_exact,
+    active::int               AS active_int,     -- true→1
+    updated_at + duration     AS deadline
 FROM typing_demo;
 ```
 
@@ -343,29 +336,27 @@ Pilih berdasarkan: frekuensi akses, kebutuhan refresh, ukuran data.
 <div class="code-sm">
 
 ```sql
--- CTE: inline, tidak disimpan
-WITH recent_rentals AS (
-    SELECT customer_id, rental_date
-    FROM rental WHERE rental_date >= now() - interval '60 days'
+-- CTE: inline, tidak disimpan ke disk
+WITH recent AS (
+  SELECT customer_id FROM rental
+  WHERE rental_date >= now() - interval '60 days'
 )
-SELECT c.first_name, COUNT(rr.rental_id) AS rentals_60d
-FROM customer c LEFT JOIN recent_rentals rr USING (customer_id)
+SELECT c.first_name, COUNT(*) AS rentals_60d
+FROM customer c JOIN recent r USING (customer_id)
 GROUP BY c.customer_id ORDER BY rentals_60d DESC LIMIT 10;
 
--- VIEW: virtual, selalu fresh
-CREATE VIEW vw_film_rental_counts AS
+-- VIEW: virtual, fresh tiap query
+CREATE VIEW vw_film_rentals AS
 SELECT f.film_id, f.title, COUNT(r.rental_id) AS num_rentals
-FROM film f
-LEFT JOIN inventory i USING (film_id)
-LEFT JOIN rental r USING (inventory_id)
+FROM film f LEFT JOIN inventory i USING (film_id)
+            LEFT JOIN rental r    USING (inventory_id)
 GROUP BY f.film_id;
 
--- MATERIALIZED VIEW: fisik, perlu REFRESH
+-- MATERIALIZED VIEW: snapshot fisik, perlu REFRESH
 CREATE MATERIALIZED VIEW mv_top_films AS
-SELECT f.film_id, f.title, COUNT(r.rental_id) AS num_rentals
-FROM film f JOIN inventory i USING (film_id) JOIN rental r USING (inventory_id)
-GROUP BY f.film_id ORDER BY num_rentals DESC
-WITH NO DATA;
+SELECT film_id, title, COUNT(*) AS rentals
+FROM film JOIN inventory USING (film_id) JOIN rental USING (inventory_id)
+GROUP BY film_id ORDER BY rentals DESC WITH NO DATA;
 
 REFRESH MATERIALIZED VIEW mv_top_films;
 ```

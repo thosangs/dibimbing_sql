@@ -232,24 +232,17 @@ LIMIT 30;
 ```sql
 -- LEFT / RIGHT / SUBSTRING
 SELECT title,
-       LEFT(title, 5)              AS left5,
-       RIGHT(title, 4)             AS right4,
+       LEFT(title, 5)                AS left5,
+       RIGHT(title, 4)               AS right4,
        SUBSTRING(title FROM 3 FOR 6) AS sub_3_8
 FROM film LIMIT 5;
 
--- CONCAT / UPPER / LOWER / LENGTH
-SELECT CONCAT(first_name, ' ', last_name) AS actor_name,
-       UPPER(first_name)   AS upper_name,
-       LOWER(last_name)    AS lower_name,
-       LENGTH(last_name)   AS len
+-- CONCAT / UPPER / LOWER / LENGTH / REPLACE
+SELECT CONCAT(first_name, ' ', last_name) AS full_name,
+       UPPER(first_name)                   AS upper_name,
+       LENGTH(last_name)                   AS name_len,
+       REPLACE(last_name, 'A', '*')        AS replaced
 FROM actor LIMIT 10;
-
--- REPLACE
-SELECT title, REPLACE(title, 'A', '*') AS replaced
-FROM film LIMIT 5;
-
--- ILIKE: case-insensitive LIKE
-SELECT title FROM film WHERE title ILIKE 'aca%' LIMIT 5;
 ```
 
 ---
@@ -260,26 +253,19 @@ SELECT title FROM film WHERE title ILIKE 'aca%' LIMIT 5;
 
 ```sql
 -- NOW dan INTERVAL
-SELECT NOW() AS now_ts,
-       NOW() + INTERVAL '7 days'  AS in_7_days,
-       NOW() - INTERVAL '3 hours' AS three_hours_ago;
+SELECT NOW()                        AS now_ts,
+       NOW() + INTERVAL '7 days'    AS in_7_days,
+       NOW() - INTERVAL '3 hours'   AS three_hours_ago;
 
--- DATE_TRUNC: potong ke granularitas tertentu
+-- DATE_TRUNC: revenue per bulan
 SELECT DATE_TRUNC('month', payment_date) AS month,
-       SUM(amount) AS total_amount
-FROM payment
-GROUP BY 1 ORDER BY 1;
+       SUM(amount) AS revenue
+FROM payment GROUP BY 1 ORDER BY 1;
 
--- EXTRACT: ambil bagian dari timestamp
+-- EXTRACT: transaksi per jam
 SELECT EXTRACT(HOUR FROM payment_date) AS hour_of_day,
        COUNT(*) AS payments
 FROM payment GROUP BY 1 ORDER BY 1;
-
--- Filter satu hari: half-open range (index-friendly)
-SELECT payment_id, payment_date, amount
-FROM payment
-WHERE payment_date >= DATE '2005-05-25'
-  AND payment_date <  DATE '2005-05-26';
 ```
 
 ---

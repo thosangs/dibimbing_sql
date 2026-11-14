@@ -295,8 +295,8 @@ html.dark {
   background: var(--code-bg) !important;
   box-shadow: 6px 6px 0 var(--bl) !important;
   padding: 0.75em 1em !important;
-  font-size: 0.82rem !important;
-  line-height: 1.5 !important;
+  font-size: 0.65rem !important;
+  line-height: 1.38 !important;
   max-width: 100%;
   overflow-x: auto;
 }

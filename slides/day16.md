@@ -178,26 +178,20 @@ LIMIT 30;
 ## FIRST_VALUE · LAST_VALUE · NTH_VALUE
 
 ```sql
-WITH r AS (
-  SELECT
-    customer_id, rental_id, rental_date,
-    FIRST_VALUE(rental_date) OVER (
-      PARTITION BY customer_id ORDER BY rental_date
-    ) AS first_rental,
-    LAST_VALUE(rental_date) OVER (
-      PARTITION BY customer_id ORDER BY rental_date
-      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  -- penting!
-    ) AS last_rental,
-    NTH_VALUE(rental_date, 2) OVER (
-      PARTITION BY customer_id ORDER BY rental_date
-      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-    ) AS second_rental
-  FROM rental
-)
-SELECT * FROM r ORDER BY customer_id, rental_date LIMIT 20;
+SELECT
+  customer_id, rental_id, rental_date,
+  FIRST_VALUE(rental_date) OVER (
+    PARTITION BY customer_id ORDER BY rental_date
+  ) AS first_rental,
+  LAST_VALUE(rental_date) OVER (
+    PARTITION BY customer_id ORDER BY rental_date
+    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+  ) AS last_rental     -- ← frame wajib
+FROM rental
+ORDER BY customer_id, rental_date LIMIT 20;
 ```
 
-> `LAST_VALUE` butuh frame `UNBOUNDED FOLLOWING` — tanpanya, default frame hanya sampai current row.
+> `LAST_VALUE` butuh frame `UNBOUNDED FOLLOWING` — default frame hanya sampai current row.
 
 ---
 
@@ -208,26 +202,20 @@ SELECT * FROM r ORDER BY customer_id, rental_date LIMIT 20;
 ```sql
 SELECT customer_id, payment_id, payment_date, amount,
 
-  -- Moving average: rata-rata 3 payment terakhir (ROWS frame)
+  -- Moving average: rata-rata 3 payment terakhir
   AVG(amount) OVER (
-    PARTITION BY customer_id
-    ORDER BY payment_date
+    PARTITION BY customer_id ORDER BY payment_date
     ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
   ) AS avg_last_3,
 
-  -- Cumulative sum (running total)
+  -- Running total (kumulatif)
   SUM(amount) OVER (
-    PARTITION BY customer_id
-    ORDER BY payment_date
+    PARTITION BY customer_id ORDER BY payment_date
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ) AS running_total,
-
-  -- Partition total (sama untuk semua baris satu customer)
-  SUM(amount) OVER (PARTITION BY customer_id) AS total_per_customer
+  ) AS running_total
 
 FROM payment
-ORDER BY customer_id, payment_date
-LIMIT 50;
+ORDER BY customer_id, payment_date LIMIT 30;
 ```
 
 ---
