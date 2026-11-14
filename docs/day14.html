@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 14 — Basic &amp; Intermediate SQL · Dibimbing SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#09090b;--bg-soft:#111113;--card:#18181b;--border:#27272a;--text:#fafafa;--muted:#71717a;--blue:#3b82f6;--blue-light:#93c5fd;--blue-dim:rgba(59,130,246,0.12);--code-bg:#0d0d10; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+    a{color:var(--blue-light);text-decoration:none;}a:hover{text-decoration:underline;}
+    code,pre,.mono{font-family:'JetBrains Mono',monospace;}
+    nav{border-bottom:2px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .nav-brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+    .nav-links{display:flex;gap:20px;}.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .nav-links a:hover{color:var(--text);text-decoration:none;}
+    .hero{padding:64px 24px 48px;border-bottom:2px solid var(--border);background:radial-gradient(600px 350px at 50% -5%,rgba(59,130,246,.15),transparent 70%);}
+    .hero-inner{max-width:900px;margin:0 auto;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);display:inline-block;padding:4px 12px;margin-bottom:20px;}
+    .hero h1{font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px;}
+    .hero p.sub{font-size:16px;color:var(--muted);max-width:640px;margin-bottom:24px;}
+    .pills{display:flex;flex-wrap:wrap;gap:8px;}
+    .pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue-light);padding:4px 10px;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    .topic{padding:52px 0;border-bottom:2px solid var(--border);}
+    .topic:last-child{border-bottom:none;}
+    .topic-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+    .topic h2{font-size:22px;font-weight:700;margin-bottom:16px;}
+    .topic p{color:var(--muted);font-size:15px;margin-bottom:20px;line-height:1.7;}
+    .topic p strong{color:var(--text);}
+    pre.sql{background:var(--code-bg);border:2px solid var(--border);padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue-light);overflow-x:auto;white-space:pre;line-height:1.6;margin:20px 0;}
+    .code-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);display:inline-block;padding:3px 8px;margin-bottom:-2px;background:var(--card);}
+    .annotation{background:var(--card);border-left:3px solid var(--blue);padding:16px 20px;margin:16px 0;}
+    .annotation p{color:var(--muted);font-size:14px;margin:0;}.annotation code{background:var(--code-bg);padding:1px 5px;color:var(--blue-light);font-size:12px;}
+    .how-it-works{background:var(--card);border:2px solid var(--border);padding:28px;margin:24px 0;}
+    .how-it-works h3{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+    pre.diagram{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:none;border:none;padding:0;overflow-x:auto;white-space:pre;}
+    page-footer{display:block;border-top:2px solid var(--border);padding:32px 24px;}
+    .footer-nav{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-nav a{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);}
+    .footer-center{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;}
+    @media(max-width:600px){nav{gap:8px;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand"><a href="index.html" style="color:var(--blue);text-decoration:none">← Semua Materi</a></span>
+    <span class="nav-brand" style="margin:0 auto">DIBIMBING SQL</span>
+    <div class="nav-links">
+      <a href="day13.html">← Day 13</a>
+      <a href="day15.html">Day 15 →</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="day-badge">Day 14 / 17</div>
+      <h1>Basic &amp; Intermediate SQL</h1>
+      <p class="sub">Filtering, agregasi, conditional logic, semua jenis JOIN, dan UNION — building blocks query SQL yang dipakai sehari-hari di analytics.</p>
+      <div class="pills">
+        <span class="pill">WHERE / IN / BETWEEN</span>
+        <span class="pill">GROUP BY / HAVING</span>
+        <span class="pill">CASE WHEN</span>
+        <span class="pill">JOIN Types</span>
+        <span class="pill">UNION / UNION ALL</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- TOPIC 1: FILTERING -->
+    <div class="topic">
+      <div class="topic-label">// 01 — Filtering</div>
+      <h2>WHERE, IN, BETWEEN, LIKE</h2>
+      <p>Clause <code>WHERE</code> memfilter baris sebelum agregasi — PostgreSQL mengevaluasi kondisi per-baris saat table scan. <strong>IN</strong> adalah sugar syntax untuk OR yang panjang — planner biasanya mengonversinya ke hash lookup. <strong>BETWEEN</strong> inklusif di kedua ujung. <strong>LIKE</strong> menggunakan pattern matching: <code>%</code> untuk sembarang string, <code>_</code> untuk satu karakter. <code>ILIKE</code> adalah case-insensitive variant yang spesifik PostgreSQL.</p>
+      <div class="code-label">examples/filtering.sql</div>
+      <pre class="sql">-- Film dengan rental_rate tinggi DAN durasi pendek
+SELECT f.film_id, f.title, f.rental_rate, f.length
+FROM film f
+WHERE f.rental_rate > 3.99
+  AND f.length &lt; 50
+ORDER BY f.rental_rate DESC, f.film_id
+LIMIT 20;
+
+-- IN: film dari kategori Action, Comedy, atau Family
+SELECT f.film_id, f.title, c.name AS category
+FROM film f
+JOIN film_category fc ON fc.film_id = f.film_id
+JOIN category c       ON c.category_id = fc.category_id
+WHERE c.name IN ('Action', 'Comedy', 'Family')
+ORDER BY f.film_id;
+
+-- BETWEEN: pembayaran dalam rentang tanggal (inklusif)
+SELECT p.payment_id, p.customer_id, p.amount, p.payment_date
+FROM payment p
+WHERE p.payment_date BETWEEN '2005-05-01' AND '2005-06-01'
+ORDER BY p.payment_date;
+
+-- LIKE: customer yang namanya diawali 'D'
+SELECT c.first_name, c.last_name
+FROM customer c
+WHERE c.first_name LIKE 'D%';  -- % = sembarang karakter (0+)</pre>
+      <div class="annotation">
+        <p>Untuk kolom TIMESTAMPTZ, gunakan half-open range (<code>&gt;= start AND &lt; end</code>) daripada BETWEEN — BETWEEN inklusif di ujung atas bisa melewatkan baris di hari berikutnya jam 00:00:00.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 2: AGGREGATION -->
+    <div class="topic">
+      <div class="topic-label">// 02 — Aggregation</div>
+      <h2>GROUP BY, HAVING, Aggregate Functions</h2>
+      <p><strong>Aggregate functions</strong> (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>, <code>MIN</code>) mereduksi banyak baris menjadi satu nilai per grup. <strong>GROUP BY</strong> mendefinisikan batas grup — semua kolom di SELECT yang bukan aggregate harus ada di GROUP BY. <strong>HAVING</strong> memfilter setelah agregasi (berbeda dengan WHERE yang memfilter sebelum) — ini satu-satunya cara filter berdasarkan hasil aggregate.</p>
+      <div class="code-label">examples/aggregation.sql</div>
+      <pre class="sql">-- Statistik keseluruhan payment
+SELECT
+  COUNT(*)        AS total_transactions,
+  AVG(amount)     AS average_payment,
+  SUM(amount)     AS total_revenue,
+  MAX(amount)     AS max_payment,
+  MIN(amount)     AS min_payment
+FROM payment;
+
+-- Grup per customer: total belanja
+SELECT
+  p.customer_id,
+  COUNT(*)        AS num_payments,
+  SUM(p.amount)   AS total_spent,
+  AVG(p.amount)   AS avg_payment
+FROM payment p
+GROUP BY p.customer_id
+ORDER BY total_spent DESC
+LIMIT 20;
+
+-- HAVING: hanya customer dengan 30+ pembayaran
+SELECT
+  p.customer_id,
+  COUNT(*)        AS num_payments,
+  SUM(p.amount)   AS total_spent
+FROM payment p
+GROUP BY p.customer_id
+HAVING COUNT(*) >= 30     -- filter SETELAH GROUP BY
+ORDER BY total_spent DESC;
+
+-- Agregasi per bulan menggunakan DATE_TRUNC
+SELECT
+  date_trunc('month', p.payment_date) AS month,
+  COUNT(*)        AS num_transactions,
+  SUM(p.amount)   AS revenue
+FROM payment p
+GROUP BY date_trunc('month', p.payment_date)
+ORDER BY month;</pre>
+      <div class="annotation">
+        <p><code>WHERE</code> vs <code>HAVING</code>: <code>WHERE</code> dieksekusi <em>sebelum</em> GROUP BY (mengurangi baris yang diagregasi), <code>HAVING</code> dieksekusi <em>sesudah</em> GROUP BY (memfilter hasil agregasi). Gunakan WHERE jika bisa — lebih efisien karena mengurangi data lebih awal.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 3: CONDITIONAL -->
+    <div class="topic">
+      <div class="topic-label">// 03 — Conditional Logic</div>
+      <h2>CASE WHEN, COALESCE, GREATEST/LEAST</h2>
+      <p><strong>CASE WHEN</strong> adalah conditional expression — bukan statement — sehingga bisa dipakai di SELECT, WHERE, ORDER BY, dan GROUP BY. <strong>COALESCE</strong> mengembalikan argumen pertama yang bukan NULL — idiom paling umum untuk default value. <strong>GREATEST/LEAST</strong> membandingkan daftar nilai dan mengembalikan yang terbesar/terkecil.</p>
+      <div class="code-label">examples/conditional.sql</div>
+      <pre class="sql">-- CASE WHEN: kategorisasi durasi film
+SELECT
+  f.title,
+  f.length,
+  CASE
+    WHEN f.length &lt;= 50              THEN 'Short'
+    WHEN f.length &gt; 50 AND f.length &lt;= 120 THEN 'Medium'
+    ELSE 'Long'
+  END AS movie_length_category
+FROM film f;
+
+-- COALESCE: tampilkan address2 atau 'N/A' jika NULL
+SELECT
+  c.customer_id, c.first_name, c.last_name,
+  COALESCE(a.address2, 'N/A') AS address2_label
+FROM customer c
+JOIN address a ON a.address_id = c.address_id
+ORDER BY c.customer_id
+LIMIT 50;
+
+-- GREATEST/LEAST: clamp nilai payment
+SELECT
+  p.payment_id,
+  p.amount,
+  GREATEST(p.amount, 0)      AS amount_floor_zero,  -- tidak boleh negatif
+  LEAST(p.amount, 10.00)     AS amount_cap_10        -- maksimal 10
+FROM payment p
+LIMIT 50;
+
+-- CASE untuk tier payment
+SELECT
+  p.payment_id, p.amount,
+  CASE
+    WHEN p.amount &lt; 2 THEN 'Bronze'
+    WHEN p.amount &lt; 5 THEN 'Silver'
+    WHEN p.amount &lt; 8 THEN 'Gold'
+    ELSE 'Platinum'
+  END AS payment_tier
+FROM payment p
+LIMIT 50;</pre>
+      <div class="annotation">
+        <p><code>CASE</code> dievaluasi short-circuit: kondisi pertama yang true langsung mengembalikan nilai, kondisi berikutnya tidak dievaluasi. <code>COALESCE(a, b, c)</code> equivalen dengan <code>CASE WHEN a IS NOT NULL THEN a WHEN b IS NOT NULL THEN b ELSE c END</code>.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 4: JOINS -->
+    <div class="topic">
+      <div class="topic-label">// 04 — JOINs</div>
+      <h2>INNER, LEFT, RIGHT, FULL OUTER, CROSS JOIN</h2>
+      <p>JOIN menggabungkan baris dari dua tabel berdasarkan kondisi. <strong>INNER JOIN</strong> hanya mengembalikan pasangan yang cocok di kedua sisi. <strong>LEFT JOIN</strong> mengembalikan semua baris kiri + pasangan dari kanan (NULL jika tidak ada). <strong>FULL OUTER JOIN</strong> mengembalikan semua baris dari kedua sisi, NULL di sisi yang tidak punya pasangan. <strong>CROSS JOIN</strong> adalah Cartesian product — setiap baris kiri dipasangkan dengan setiap baris kanan.</p>
+      <div class="code-label">examples/joins.sql</div>
+      <pre class="sql">-- INNER JOIN: customer + payment mereka
+SELECT c.customer_id, c.first_name, c.last_name,
+       p.payment_id, p.amount, p.payment_date
+FROM customer c
+INNER JOIN payment p ON c.customer_id = p.customer_id
+ORDER BY c.customer_id, p.payment_date;
+
+-- LEFT JOIN: semua kategori, termasuk yang tidak punya film
+SELECT c.category_id, c.name AS category_name,
+       f.film_id, f.title
+FROM category c
+LEFT JOIN film_category fc ON fc.category_id = c.category_id
+LEFT JOIN film f           ON f.film_id = fc.film_id
+ORDER BY c.category_id, f.film_id NULLS LAST;
+
+-- FULL OUTER JOIN: semua kategori DAN semua film (meski tidak terhubung)
+SELECT c.category_id, c.name AS category_name,
+       f.film_id, f.title
+FROM category c
+FULL OUTER JOIN film_category fc ON fc.category_id = c.category_id
+FULL OUTER JOIN film f           ON f.film_id = fc.film_id
+ORDER BY COALESCE(c.category_id, -1), COALESCE(f.film_id, -1);
+
+-- CROSS JOIN: Cartesian product (3 kategori × 3 film = 9 baris)
+SELECT c.category_id, c.name AS category_name,
+       f.film_id, f.title
+FROM (SELECT * FROM category ORDER BY category_id LIMIT 3) c
+CROSS JOIN (SELECT * FROM film ORDER BY film_id LIMIT 3) f
+ORDER BY c.category_id, f.film_id;</pre>
+
+      <div class="how-it-works">
+        <h3>// Visualisasi JOIN</h3>
+        <pre class="diagram">
+LEFT   RIGHT                              HASIL
+
+INNER JOIN:         LEFT JOIN:            FULL OUTER JOIN:
+  A ∩ B               A + (A ∩ B)           A + B (union)
+  ┌──┐                ┌────┐               ┌──────┐
+  │██│                │████│               │██████│
+  └──┘                └────┘               └──────┘
+
+LEFT  │ RIGHT │ INNER │ LEFT  │ FULL
+match │ match │ only  │ only  │ OUTER
+──────┼───────┼───────┼───────┼──────
+  A   │   A   │   A   │   A   │  A
+  B   │   B   │   B   │  NULL │  B
+  C   │  NULL │  ---  │   C   │  C
+ NULL │   D   │  ---  │  ---  │  D</pre>
+      </div>
+    </div>
+
+    <!-- TOPIC 5: UNION -->
+    <div class="topic">
+      <div class="topic-label">// 05 — Set Operations</div>
+      <h2>UNION vs UNION ALL</h2>
+      <p><strong>UNION ALL</strong> menggabungkan result set tanpa deduplication — lebih cepat karena tidak perlu sorting/hashing. <strong>UNION</strong> (tanpa ALL) secara implisit melakukan <code>DISTINCT</code> pada gabungan — membuang duplikat tapi memerlukan sort atau hash extra. Gunakan UNION ALL by default kecuali duplikat memang perlu dibuang — lebih efisien dan intent lebih eksplisit.</p>
+      <div class="code-label">examples/union.sql</div>
+      <pre class="sql">-- UNION ALL: gabungkan nama customer DAN judul film (dengan duplikat)
+-- Kolom harus sama jumlah dan kompatibel tipenya
+SELECT first_name AS entity_name FROM customer
+UNION ALL
+SELECT title AS entity_name FROM film;
+
+-- UNION: sama tapi buang duplikat (ada nama customer = judul film?)
+SELECT first_name AS entity_name FROM customer
+UNION
+SELECT title AS entity_name FROM film;</pre>
+      <div class="annotation">
+        <p>Kedua query membutuhkan kolom yang <strong>sama jumlah</strong> dan <strong>kompatibel tipe</strong>-nya. Nama kolom diambil dari SELECT pertama. UNION implisit melakukan <code>ORDER BY</code> untuk deduplication — ini sebabnya lebih lambat dari UNION ALL.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <page-footer>
+    <div class="footer-nav">
+      <a href="day13.html">← Day 13</a>
+      <span class="footer-center">Day 14 — Basic &amp; Intermediate SQL</span>
+      <a href="day15.html">Day 15: Advanced SQL →</a>
+    </div>
+  </page-footer>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 16 — Window Functions · Dibimbing SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#09090b;--bg-soft:#111113;--card:#18181b;--border:#27272a;--text:#fafafa;--muted:#71717a;--blue:#3b82f6;--blue-light:#93c5fd;--blue-dim:rgba(59,130,246,0.12);--code-bg:#0d0d10;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+    a{color:var(--blue-light);text-decoration:none;}a:hover{text-decoration:underline;}
+    code,pre,.mono{font-family:'JetBrains Mono',monospace;}
+    nav{border-bottom:2px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .nav-brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+    .nav-links{display:flex;gap:20px;}.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .nav-links a:hover{color:var(--text);text-decoration:none;}
+    .hero{padding:64px 24px 48px;border-bottom:2px solid var(--border);background:radial-gradient(600px 350px at 50% -5%,rgba(59,130,246,.15),transparent 70%);}
+    .hero-inner{max-width:900px;margin:0 auto;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);display:inline-block;padding:4px 12px;margin-bottom:20px;}
+    .hero h1{font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px;}
+    .hero p.sub{font-size:16px;color:var(--muted);max-width:640px;margin-bottom:24px;}
+    .pills{display:flex;flex-wrap:wrap;gap:8px;}
+    .pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue-light);padding:4px 10px;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    .topic{padding:52px 0;border-bottom:2px solid var(--border);}
+    .topic:last-child{border-bottom:none;}
+    .topic-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+    .topic h2{font-size:22px;font-weight:700;margin-bottom:16px;}
+    .topic p{color:var(--muted);font-size:15px;margin-bottom:20px;line-height:1.7;}
+    .topic p strong{color:var(--text);}
+    pre.sql{background:var(--code-bg);border:2px solid var(--border);padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue-light);overflow-x:auto;white-space:pre;line-height:1.6;margin:20px 0;}
+    .code-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);display:inline-block;padding:3px 8px;margin-bottom:-2px;background:var(--card);}
+    .annotation{background:var(--card);border-left:3px solid var(--blue);padding:16px 20px;margin:16px 0;}
+    .annotation p{color:var(--muted);font-size:14px;margin:0;}.annotation code{background:var(--code-bg);padding:1px 5px;color:var(--blue-light);font-size:12px;}
+    .how-it-works{background:var(--card);border:2px solid var(--border);padding:28px;margin:24px 0;}
+    .how-it-works h3{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+    pre.diagram{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:none;border:none;padding:0;overflow-x:auto;white-space:pre;}
+    .case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin:24px 0;}
+    .case-card{background:var(--card);border:2px solid var(--border);padding:20px;}
+    .case-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+    .case-card h4{font-size:14px;font-weight:700;margin-bottom:8px;}
+    .case-card p{font-size:13px;color:var(--muted);}
+    page-footer{display:block;border-top:2px solid var(--border);padding:32px 24px;}
+    .footer-nav{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-nav a{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);}
+    .footer-center{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;}
+    @media(max-width:600px){.case-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand"><a href="index.html" style="color:var(--blue);text-decoration:none">← Semua Materi</a></span>
+    <span class="nav-brand" style="margin:0 auto">DIBIMBING SQL</span>
+    <div class="nav-links">
+      <a href="day15.html">← Day 15</a>
+      <a href="day17.html">Day 17 →</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="day-badge">Day 16 / 17</div>
+      <h1>Window Functions</h1>
+      <p class="sub">Kalkulasi per-baris tanpa collapse grup: ranking, navigation (LAG/LEAD), running total, moving average — dan anatomy OVER clause.</p>
+      <div class="pills">
+        <span class="pill">OVER Clause</span>
+        <span class="pill">PARTITION BY</span>
+        <span class="pill">Frame Clauses</span>
+        <span class="pill">RANK / NTILE</span>
+        <span class="pill">LAG / LEAD</span>
+        <span class="pill">Running Total</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- TOPIC 1: OVER CLAUSE ANATOMY -->
+    <div class="topic">
+      <div class="topic-label">// 01 — Anatomy</div>
+      <h2>OVER Clause: Cara Kerjanya</h2>
+      <p>Window function <strong>tidak collapse baris</strong> seperti GROUP BY — setiap baris masih ada dalam output, tapi fungsi dihitung terhadap sekumpulan baris terkait (the "window"). <code>PARTITION BY</code> mendefinisikan batas grup (seperti GROUP BY tapi tanpa collapse). <code>ORDER BY</code> mendefinisikan urutan dalam tiap partition untuk fungsi yang order-sensitive. <code>FRAME CLAUSE</code> mendefinisikan subset baris dalam partition yang digunakan untuk kalkulasi (default berbeda-beda per fungsi).</p>
+
+      <div class="how-it-works">
+        <h3>// Anatomy OVER Clause</h3>
+        <pre class="diagram">
+SUM(amount) OVER (
+  PARTITION BY customer_id      ← batas grup: satu window per customer
+  ORDER BY payment_date         ← urutan dalam window (untuk running total)
+  ROWS BETWEEN                  ← frame: subset baris yang dihitung
+    UNBOUNDED PRECEDING          ← dari baris pertama dalam partition...
+    AND CURRENT ROW              ← ...sampai baris ini
+)
+
+Tanpa PARTITION BY → satu window = seluruh tabel
+Tanpa ORDER BY     → frame default = seluruh partition (untuk aggregates)
+Tanpa FRAME        → default: RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+
+Frame options:
+  ROWS BETWEEN 2 PRECEDING AND CURRENT ROW  → 3 baris terakhir (by count)
+  RANGE BETWEEN ...                          → by value (tipe data)
+  GROUPS BETWEEN ...                         → by distinct value group</pre>
+      </div>
+    </div>
+
+    <!-- TOPIC 2: RANKING -->
+    <div class="topic">
+      <div class="topic-label">// 02 — Ranking Functions</div>
+      <h2>ROW_NUMBER, RANK, DENSE_RANK, NTILE</h2>
+      <p><strong>NTILE(n)</strong> membagi baris dalam partition menjadi n bucket seukuran mungkin — berguna untuk kuartil, desil, atau percentile. Bucket pertama mendapat baris ekstra jika tidak habis dibagi rata. ROW_NUMBER, RANK, DENSE_RANK sudah dibahas di Day 15 — di sini kita pakai semuanya bersamaan untuk membandingkan.</p>
+      <div class="code-label">examples/ranking.sql</div>
+      <pre class="sql">-- Semua ranking function sekaligus: film per kategori by jumlah rental
+WITH film_rentals AS (
+  SELECT c.name AS category,
+         f.film_id, f.title,
+         COUNT(r.rental_id) AS rentals
+  FROM category c
+  JOIN film_category fc ON fc.category_id = c.category_id
+  JOIN film f           ON f.film_id = fc.film_id
+  JOIN inventory i      ON i.film_id = f.film_id
+  JOIN rental r         ON r.inventory_id = i.inventory_id
+  GROUP BY c.name, f.film_id, f.title
+)
+SELECT category, title, rentals,
+  ROW_NUMBER() OVER (PARTITION BY category ORDER BY rentals DESC) AS row_num,
+  RANK()       OVER (PARTITION BY category ORDER BY rentals DESC) AS rank_val,
+  DENSE_RANK() OVER (PARTITION BY category ORDER BY rentals DESC) AS dense_rank_val,
+  NTILE(4)     OVER (PARTITION BY category ORDER BY rentals DESC) AS quartile
+FROM film_rentals
+ORDER BY category, rentals DESC, title
+LIMIT 50;</pre>
+      <div class="annotation">
+        <p><code>NTILE(4)</code> membagi film per kategori menjadi 4 quartile — Q1 adalah 25% teratas by rentals. Sangat berguna untuk segmentasi: "top 25% film terlaris per kategori".</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 3: NAVIGATION -->
+    <div class="topic">
+      <div class="topic-label">// 03 — Navigation Functions</div>
+      <h2>LAG, LEAD, FIRST_VALUE, LAST_VALUE, NTH_VALUE</h2>
+      <p><strong>LAG(col, n)</strong> mengakses nilai dari n baris <em>sebelumnya</em> dalam window — tanpa self-join. <strong>LEAD(col, n)</strong> mengakses n baris <em>ke depan</em>. Keduanya sangat berguna untuk menghitung selisih antar event (days since last purchase, MoM growth). <strong>FIRST_VALUE / LAST_VALUE</strong> mengakses baris pertama/terakhir dalam frame — perhatikan bahwa frame default untuk LAST_VALUE adalah CURRENT ROW, sehingga perlu menambahkan <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code> untuk mendapat nilai akhir partition.</p>
+      <div class="code-label">examples/navigation.sql</div>
+      <pre class="sql">-- LAG/LEAD/FIRST_VALUE/LAST_VALUE per customer
+WITH r AS (
+  SELECT customer_id, rental_id, rental_date,
+    -- baris sebelum dan sesudahnya
+    LAG(rental_date)  OVER (PARTITION BY customer_id ORDER BY rental_date) AS prev_rental_date,
+    LEAD(rental_date) OVER (PARTITION BY customer_id ORDER BY rental_date) AS next_rental_date,
+    -- baris pertama dan terakhir dalam partition
+    FIRST_VALUE(rental_date) OVER (
+      PARTITION BY customer_id ORDER BY rental_date
+    ) AS first_rental_date,
+    LAST_VALUE(rental_date) OVER (
+      PARTITION BY customer_id ORDER BY rental_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  -- frame eksplisit!
+    ) AS last_rental_date,
+    -- baris ke-2
+    NTH_VALUE(rental_date, 2) OVER (
+      PARTITION BY customer_id ORDER BY rental_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ) AS second_rental_date
+  FROM rental
+)
+SELECT customer_id, rental_id, rental_date,
+       prev_rental_date, next_rental_date,
+       first_rental_date, last_rental_date, second_rental_date
+FROM r
+ORDER BY customer_id, rental_date
+LIMIT 100;</pre>
+      <div class="annotation">
+        <p>Tanpa frame eksplisit, <code>LAST_VALUE</code> mengembalikan nilai baris saat ini (bukan akhir partition) karena default frame adalah <code>RANGE UNBOUNDED PRECEDING AND CURRENT ROW</code>. Selalu tambahkan <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code> untuk LAST_VALUE.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 4: AGGREGATE WINDOWS -->
+    <div class="topic">
+      <div class="topic-label">// 04 — Aggregate Windows</div>
+      <h2>Running Total, Moving Average, Partition Aggregate</h2>
+      <p>Aggregate functions standar (<code>SUM</code>, <code>AVG</code>, <code>COUNT</code>, <code>MAX</code>, <code>MIN</code>) bisa dipakai sebagai window function dengan <code>OVER()</code>. <strong>Running total</strong> menjumlahkan semua baris dari awal partition sampai baris saat ini. <strong>Moving average</strong> menggunakan frame dengan ukuran tetap (mis. 3 baris terakhir). <strong>Partition aggregate</strong> menghitung total untuk seluruh grup dan menempel di setiap baris — tanpa GROUP BY.</p>
+      <div class="code-label">examples/aggregates.sql</div>
+      <pre class="sql">-- Running total, moving avg, dan partition aggregate dalam satu query
+WITH p AS (
+  SELECT customer_id, payment_id, payment_date, amount FROM payment
+)
+SELECT
+  customer_id, payment_id, payment_date, amount,
+
+  -- Moving average: rata-rata 3 payment terakhir (ROWS frame)
+  AVG(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY payment_date
+    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+  ) AS avg_last_3,
+
+  -- Running count: berapa payment sampai saat ini
+  COUNT(*) OVER (
+    PARTITION BY customer_id
+    ORDER BY payment_date
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS cumulative_count,
+
+  -- Running total: total belanja terakumulasi
+  SUM(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY payment_date
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS running_total,
+
+  -- Partition total: total semua payment customer ini (sama di tiap baris)
+  SUM(amount) OVER (PARTITION BY customer_id) AS total_per_customer,
+
+  -- Max/min dalam partition
+  MAX(amount) OVER (PARTITION BY customer_id) AS max_amount_for_customer,
+  MIN(amount) OVER (PARTITION BY customer_id) AS min_amount_for_customer
+FROM p
+ORDER BY customer_id, payment_date
+LIMIT 100;</pre>
+
+      <div class="how-it-works">
+        <h3>// Frame Clause: ROWS vs RANGE vs GROUPS</h3>
+        <pre class="diagram">
+Frame Type  | Unit                    | Use Case
+────────────┼─────────────────────────┼────────────────────────────────
+ROWS        | Physical rows (by count)| Rolling N periods, N-row MA
+RANGE       | Value range (data type) | "Same day", "same value" groups
+GROUPS      | Peer groups             | Group-based accumulation
+
+Contoh pada payment table per customer, ORDER BY payment_date:
+
+ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+→ sum 3 baris terakhir by count, terlepas dari tanggalnya
+
+RANGE BETWEEN CURRENT ROW AND CURRENT ROW
+→ sum semua baris yang punya timestamp PERSIS sama
+  (berguna untuk payment yang terjadi di momen yang sama)
+
+GROUPS BETWEEN 1 PRECEDING AND CURRENT ROW
+→ sum baris dari group sebelumnya + group saat ini
+  (1 group = semua baris dengan nilai ORDER BY yang sama)</pre>
+      </div>
+    </div>
+
+    <!-- TOPIC 5: FRAME CLAUSE DETAIL -->
+    <div class="topic">
+      <div class="topic-label">// 05 — Frame Clause Detail</div>
+      <h2>ROWS, RANGE, GROUPS — Perbedaan Nyata</h2>
+      <div class="code-label">examples/window_frame.sql</div>
+      <pre class="sql">-- ROWS frame: sum berdasarkan hitungan baris
+SELECT customer_id, payment_id, payment_date, amount,
+  SUM(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY payment_date
+    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW  -- 3 baris terakhir
+  ) AS sum_rows_last_2
+FROM payment
+ORDER BY customer_id, payment_date
+LIMIT 100;
+
+-- RANGE frame: sum semua payment dengan timestamp yang sama
+SELECT customer_id, payment_id, payment_date::date AS day, amount,
+  SUM(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY payment_date
+    RANGE BETWEEN CURRENT ROW AND CURRENT ROW  -- exact same timestamp
+  ) AS sum_same_timestamp_range
+FROM payment
+ORDER BY customer_id, payment_date
+LIMIT 100;</pre>
+
+      <div class="annotation">
+        <p><code>ROWS</code> adalah yang paling predictable — gunakan ini by default untuk rolling windows. <code>RANGE</code> berguna untuk "semua event di hari yang sama" tapi memerlukan tipe data yang bisa dibandingkan dengan nilai numerik atau interval.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 6: CASE STUDY -->
+    <div class="topic">
+      <div class="topic-label">// 06 — Business Case Study</div>
+      <h2>Studi Kasus: dvdrental Analytics</h2>
+      <p>Semua pertanyaan di bawah menggunakan window functions — dari high-value customer identification hingga churn risk detection.</p>
+      <div class="case-grid">
+        <div class="case-card">
+          <div class="case-num">Case 1</div>
+          <h4>High-Value Customers</h4>
+          <p>Top 10% customer by total payment yang rented di minimal 3 bulan berbeda — NTILE + COUNT DISTINCT.</p>
+        </div>
+        <div class="case-card">
+          <div class="case-num">Case 2</div>
+          <h4>Category Momentum</h4>
+          <p>Rentals H1 vs H2 2005 per kategori, pct_change — conditional aggregation + simple division.</p>
+        </div>
+        <div class="case-card">
+          <div class="case-num">Case 3</div>
+          <h4>Star Performers</h4>
+          <p>Actor dengan rental tertinggi per release year — RANK() OVER (PARTITION BY release_year).</p>
+        </div>
+        <div class="case-card">
+          <div class="case-num">Case 4</div>
+          <h4>Lifetime Spend Trajectory</h4>
+          <p>Running total per payment per customer — SUM OVER (UNBOUNDED PRECEDING AND CURRENT ROW).</p>
+        </div>
+        <div class="case-card">
+          <div class="case-num">Case 7</div>
+          <h4>Time-to-Next-Rental</h4>
+          <p>Gap antar rental per customer — LEAD(rental_date) - rental_date sebagai churn signal.</p>
+        </div>
+        <div class="case-card">
+          <div class="case-num">Case 10</div>
+          <h4>Frame Sensitivity</h4>
+          <p>Bandingkan ROWS vs RANGE vs GROUPS pada dataset yang sama — edge cases frame clause.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <page-footer>
+    <div class="footer-nav">
+      <a href="day15.html">← Day 15</a>
+      <span class="footer-center">Day 16 — Window Functions</span>
+      <a href="day17.html">Day 17: Live Coding →</a>
+    </div>
+  </page-footer>
+</body>
+</html>

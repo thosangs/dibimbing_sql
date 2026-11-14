@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 17 — Live Coding Analytics · Dibimbing SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#09090b;--bg-soft:#111113;--card:#18181b;--border:#27272a;--text:#fafafa;--muted:#71717a;--blue:#3b82f6;--blue-light:#93c5fd;--blue-dim:rgba(59,130,246,0.12);--code-bg:#0d0d10;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+    a{color:var(--blue-light);text-decoration:none;}a:hover{text-decoration:underline;}
+    code,pre,.mono{font-family:'JetBrains Mono',monospace;}
+    nav{border-bottom:2px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .nav-brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+    .nav-links{display:flex;gap:20px;}.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .nav-links a:hover{color:var(--text);text-decoration:none;}
+    .hero{padding:64px 24px 48px;border-bottom:2px solid var(--border);background:radial-gradient(600px 350px at 50% -5%,rgba(59,130,246,.15),transparent 70%);}
+    .hero-inner{max-width:900px;margin:0 auto;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);display:inline-block;padding:4px 12px;margin-bottom:20px;}
+    .hero h1{font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px;}
+    .hero p.sub{font-size:16px;color:var(--muted);max-width:640px;margin-bottom:24px;}
+    .pills{display:flex;flex-wrap:wrap;gap:8px;}
+    .pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue-light);padding:4px 10px;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    .topic{padding:52px 0;border-bottom:2px solid var(--border);}
+    .topic:last-child{border-bottom:none;}
+    .topic-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+    .topic h2{font-size:22px;font-weight:700;margin-bottom:16px;}
+    .topic p{color:var(--muted);font-size:15px;margin-bottom:20px;line-height:1.7;}
+    .topic p strong{color:var(--text);}
+    pre.sql{background:var(--code-bg);border:2px solid var(--border);padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue-light);overflow-x:auto;white-space:pre;line-height:1.6;margin:20px 0;}
+    .code-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);display:inline-block;padding:3px 8px;margin-bottom:-2px;background:var(--card);}
+    .annotation{background:var(--card);border-left:3px solid var(--blue);padding:16px 20px;margin:16px 0;}
+    .annotation p{color:var(--muted);font-size:14px;margin:0;}.annotation code{background:var(--code-bg);padding:1px 5px;color:var(--blue-light);font-size:12px;}
+    .how-it-works{background:var(--card);border:2px solid var(--border);padding:28px;margin:24px 0;}
+    .how-it-works h3{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+    pre.diagram{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:none;border:none;padding:0;overflow-x:auto;white-space:pre;}
+    .level-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+    .level-box{background:var(--card);border:2px solid var(--border);padding:20px;}
+    .level-tag{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px;padding:3px 8px;display:inline-block;}
+    .level-tag.easy{color:#4ade80;border:1px solid #4ade80;background:rgba(74,222,128,.08);}
+    .level-tag.med{color:#fb923c;border:1px solid #fb923c;background:rgba(251,146,60,.08);}
+    .level-tag.hard{color:#f87171;border:1px solid #f87171;background:rgba(248,113,113,.08);}
+    .level-box ul{list-style:none;}
+    .level-box ul li{font-size:13px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+    .level-box ul li:last-child{border-bottom:none;}
+    .level-box h4{font-size:14px;font-weight:700;margin-bottom:10px;}
+    page-footer{display:block;border-top:2px solid var(--border);padding:32px 24px;}
+    .footer-nav{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-nav a{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);}
+    .footer-center{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;}
+    @media(max-width:700px){.level-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand"><a href="index.html" style="color:var(--blue);text-decoration:none">← Semua Materi</a></span>
+    <span class="nav-brand" style="margin:0 auto">DIBIMBING SQL</span>
+    <div class="nav-links">
+      <a href="day16.html">← Day 16</a>
+      <a href="https://github.com/thosangs/dibimbing_sql" target="_blank">GitHub</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="day-badge">Day 17 / 17 — Final</div>
+      <h1>Live Coding: Analytics</h1>
+      <p class="sub">Story-driven: bantu "New Release Push" campaign dengan analytical SQL — eksplorasi → keputusan bisnis → advanced windowing. Easy → Medium → Hard.</p>
+      <div class="pills">
+        <span class="pill">Cohort Analysis</span>
+        <span class="pill">Churn Detection</span>
+        <span class="pill">Rolling Windows</span>
+        <span class="pill">CTEs</span>
+        <span class="pill">Window Functions</span>
+        <span class="pill">Business Analytics</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- STORY INTRO -->
+    <div class="topic">
+      <div class="topic-label">// Story</div>
+      <h2>The New Release Push Campaign</h2>
+      <p>dvdrental chain meluncurkan kampanye "New Release Push" pada <strong>2005-07-01</strong>. Sebagai analyst, kamu membangun insights step-by-step: mulai dari diagnostik cepat, lalu keputusan bisnis (cohort, churn), dan akhirnya advanced windowing untuk rolling metrics dan contribution curves.</p>
+
+      <div class="level-row">
+        <div class="level-box">
+          <div class="level-tag easy">Easy (8)</div>
+          <h4>Exploratory Analytics</h4>
+          <ul>
+            <li>Daily rental trend</li>
+            <li>Top 10 most-rented films</li>
+            <li>Monthly payments trend</li>
+            <li>New customers per month</li>
+            <li>Rentals by category</li>
+            <li>Avg rental duration/category</li>
+            <li>Top 10 cities by rentals</li>
+            <li>Active customers last 30d</li>
+          </ul>
+        </div>
+        <div class="level-box">
+          <div class="level-tag med">Medium (6)</div>
+          <h4>Business Decisions</h4>
+          <ul>
+            <li>Cohort retention (m0–m3)</li>
+            <li>Monthly churn rate</li>
+            <li>Reactivation count</li>
+            <li>Campaign impact (pre/post)</li>
+            <li>Inventory restock alert</li>
+            <li>Cross-sell opportunity</li>
+          </ul>
+        </div>
+        <div class="level-box">
+          <div class="level-tag hard">Hard (4)</div>
+          <h4>Advanced Windowing</h4>
+          <ul>
+            <li>7-day rolling rentals</li>
+            <li>Top 5 films cumulative %</li>
+            <li>Customer lifetime value</li>
+            <li>Churn risk flagging</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- EASY SECTION -->
+    <div class="topic">
+      <div class="topic-label">// Easy — Exploratory</div>
+      <h2>Diagnostik Awal: Kenali Data</h2>
+      <p>Mulai dengan pertanyaan sederhana untuk mendapat gambaran landscape — volume, trend, distribusi. Semua bisa dijawab dengan <strong>GROUP BY + agregasi</strong> dasar, kadang dengan date truncation untuk binning waktu.</p>
+
+      <div class="how-it-works">
+        <h3>// Teknik yang Dipakai</h3>
+        <pre class="diagram">
+E1 Daily trend    → DATE_TRUNC('day', rental_date) + COUNT(*)
+E2 Top 10 films   → JOIN inventory + rental, GROUP BY film, ORDER BY DESC LIMIT 10
+E3 Monthly payments → DATE_TRUNC('month', payment_date) + SUM(amount)
+E4 New customers  → MIN(rental_date) per customer → GROUP BY bulan
+E5 Rentals/category → JOIN chain: category→film_category→film→inventory→rental
+E6 Avg duration   → AVG(return_date - rental_date) per category
+E7 Top cities     → JOIN chain: rental→customer→address→city, GROUP BY city
+E8 Active 30d     → MAX(rental_date) sebagai "last date in data" - 30 days</pre>
+      </div>
+
+      <div class="code-label">Contoh: E4 — New Customers Per Month</div>
+      <pre class="sql">-- Definisi "new customer": bulan pertama mereka pernah renting
+WITH first_rental AS (
+  SELECT customer_id,
+         DATE_TRUNC('month', MIN(rental_date)) AS cohort_month
+  FROM rental
+  GROUP BY customer_id
+)
+SELECT cohort_month,
+       COUNT(*) AS new_customers
+FROM first_rental
+GROUP BY cohort_month
+ORDER BY cohort_month;</pre>
+
+      <div class="code-label">Contoh: E8 — Active Customers Last 30 Days</div>
+      <pre class="sql">-- "Last 30 days" = 30 hari sebelum tanggal rental terakhir di data
+WITH data_end AS (
+  SELECT MAX(rental_date) AS max_date FROM rental
+)
+SELECT COUNT(DISTINCT r.customer_id) AS active_customers
+FROM rental r, data_end
+WHERE r.rental_date >= data_end.max_date - INTERVAL '30 days';</pre>
+    </div>
+
+    <!-- MEDIUM SECTION -->
+    <div class="topic">
+      <div class="topic-label">// Medium — Business Decisions</div>
+      <h2>Cohort Retention &amp; Churn Analysis</h2>
+      <p><strong>Cohort analysis</strong> mengelompokkan customer berdasarkan kapan mereka pertama kali aktif, lalu melacak retention mereka di bulan-bulan berikutnya. <strong>Churn</strong> didefinisikan sebagai customer yang aktif di bulan N-1 tapi tidak aktif di bulan N. Keduanya membutuhkan perbandingan antar-bulan yang umumnya menggunakan CTE berlapis + conditional aggregation.</p>
+
+      <div class="code-label">Teknik: M1 — Cohort Retention</div>
+      <pre class="sql">-- Cohort = bulan pertama renting; retention = renting di bulan +1, +2, +3
+WITH cohorts AS (
+  SELECT customer_id,
+         DATE_TRUNC('month', MIN(rental_date)) AS cohort_month
+  FROM rental GROUP BY customer_id
+),
+activity AS (
+  SELECT r.customer_id,
+         DATE_TRUNC('month', r.rental_date) AS active_month
+  FROM rental r GROUP BY 1, 2
+),
+joined AS (
+  SELECT c.cohort_month, a.active_month,
+         -- bulan berapa sejak cohort (0 = bulan pertama, 1 = bulan berikutnya, dst)
+         EXTRACT(MONTH FROM AGE(a.active_month, c.cohort_month))::int AS months_since
+  FROM cohorts c
+  JOIN activity a USING (customer_id)
+  WHERE a.active_month >= c.cohort_month
+    AND months_since BETWEEN 0 AND 3
+)
+SELECT cohort_month,
+  COUNT(DISTINCT CASE WHEN months_since = 0 THEN customer_id END) AS m0_active,
+  COUNT(DISTINCT CASE WHEN months_since = 1 THEN customer_id END) AS m1_active,
+  COUNT(DISTINCT CASE WHEN months_since = 2 THEN customer_id END) AS m2_active,
+  COUNT(DISTINCT CASE WHEN months_since = 3 THEN customer_id END) AS m3_active
+FROM joined
+GROUP BY cohort_month
+ORDER BY cohort_month;</pre>
+      <div class="annotation">
+        <p><code>COUNT(DISTINCT CASE WHEN ... THEN customer_id END)</code> adalah pola "pivot via conditional aggregation" — menghitung distinct customer yang memenuhi kondisi tertentu dalam satu GROUP BY, tanpa PIVOT syntax yang tidak ada di PostgreSQL.</p>
+      </div>
+
+      <div class="code-label">Teknik: M2 — Monthly Churn Rate</div>
+      <pre class="sql">-- Churn: aktif bulan lalu, tidak aktif bulan ini
+WITH monthly_active AS (
+  SELECT customer_id,
+         DATE_TRUNC('month', rental_date) AS active_month
+  FROM rental GROUP BY 1, 2
+),
+with_prev AS (
+  SELECT customer_id, active_month,
+         -- apakah customer ini aktif bulan sebelumnya?
+         LAG(active_month) OVER (
+           PARTITION BY customer_id ORDER BY active_month
+         ) AS prev_month
+  FROM monthly_active
+)
+SELECT active_month,
+  COUNT(*) AS active_this_month,
+  -- churned: prev_month ada tapi bukan bulan sebelumnya (ada gap)
+  COUNT(CASE WHEN prev_month IS NOT NULL
+              AND active_month != prev_month + INTERVAL '1 month'
+         THEN 1 END) AS churned,
+  ROUND(
+    100.0 * COUNT(CASE WHEN prev_month IS NOT NULL
+                        AND active_month != prev_month + INTERVAL '1 month'
+                   THEN 1 END)
+    / NULLIF(COUNT(*), 0), 1
+  ) AS churn_pct
+FROM with_prev
+GROUP BY active_month
+ORDER BY active_month
+LIMIT 6;</pre>
+    </div>
+
+    <!-- HARD SECTION -->
+    <div class="topic">
+      <div class="topic-label">// Hard — Advanced Windowing</div>
+      <h2>Rolling Windows &amp; Contribution Curves</h2>
+      <p><strong>7-day rolling sum</strong> membutuhkan frame <code>ROWS BETWEEN 6 PRECEDING AND CURRENT ROW</code> — tapi pertama harus ada data harian per kategori. <strong>Cumulative contribution</strong> (top N% of rentals) menggunakan running SUM dibagi total — berguna untuk Pareto analysis: "top 20% film menghasilkan 80% rental".</p>
+
+      <div class="code-label">Teknik: H1 — 7-Day Rolling Rentals Per Category</div>
+      <pre class="sql">-- Step 1: daily rentals per category
+WITH daily_cat AS (
+  SELECT
+    DATE_TRUNC('day', r.rental_date)::date AS rental_day,
+    c.name AS category,
+    COUNT(r.rental_id) AS daily_rentals
+  FROM rental r
+  JOIN inventory i      ON i.inventory_id = r.inventory_id
+  JOIN film f           ON f.film_id = i.film_id
+  JOIN film_category fc ON fc.film_id = f.film_id
+  JOIN category c       ON c.category_id = fc.category_id
+  GROUP BY 1, 2
+)
+-- Step 2: 7-day rolling sum dengan ROWS frame
+SELECT
+  rental_day, category, daily_rentals,
+  SUM(daily_rentals) OVER (
+    PARTITION BY category
+    ORDER BY rental_day
+    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW  -- 7 hari termasuk hari ini
+  ) AS rentals_7d
+FROM daily_cat
+ORDER BY category, rental_day;</pre>
+
+      <div class="code-label">Teknik: H2 — Cumulative % (Pareto / Top N Films)</div>
+      <pre class="sql">-- Top 5 films by rentals dan cumulative % terhadap total
+WITH film_totals AS (
+  SELECT f.film_id, f.title,
+         COUNT(r.rental_id) AS total_rentals
+  FROM film f
+  JOIN inventory i ON i.film_id = f.film_id
+  JOIN rental r    ON r.inventory_id = i.inventory_id
+  GROUP BY f.film_id, f.title
+),
+ranked AS (
+  SELECT *,
+    SUM(total_rentals) OVER (ORDER BY total_rentals DESC
+                              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_sum,
+    SUM(total_rentals) OVER () AS grand_total,
+    ROW_NUMBER() OVER (ORDER BY total_rentals DESC) AS rn
+  FROM film_totals
+)
+SELECT film_id, title, total_rentals,
+       ROUND(100.0 * running_sum / grand_total, 1) AS cumulative_pct
+FROM ranked
+WHERE rn &lt;= 5
+ORDER BY rn;</pre>
+
+      <div class="how-it-works">
+        <h3>// Pola Umum: CTE Stack untuk Query Kompleks</h3>
+        <pre class="diagram">
+Query kompleks = tumpukan CTE yang masing-masing menjawab satu pertanyaan:
+
+WITH
+  raw_data AS (
+    -- Step 1: ambil data mentah dengan JOIN yang diperlukan
+    SELECT ...
+  ),
+  aggregated AS (
+    -- Step 2: agregasi atau window
+    SELECT ..., SUM() OVER (...) FROM raw_data
+  ),
+  filtered AS (
+    -- Step 3: filter hasil window (tidak bisa WHERE langsung)
+    SELECT * FROM aggregated WHERE ...
+  )
+SELECT * FROM filtered ORDER BY ...;
+
+Setiap CTE = satu langkah logis = mudah di-debug per bagian</pre>
+      </div>
+
+      <div class="annotation">
+        <p>Untuk debug query CTE berlapis: jalankan setiap CTE secara terpisah sebagai query standalone. Ganti <code>WITH name AS (...) SELECT * FROM next_cte</code> dengan <code>SELECT * FROM (isi CTE) t</code> untuk memverifikasi output per langkah.</p>
+      </div>
+    </div>
+
+    <!-- TEKNIK SUMMARY -->
+    <div class="topic">
+      <div class="topic-label">// Summary</div>
+      <h2>Teknik per Level</h2>
+      <div class="how-it-works">
+        <h3>// Decision Tree: Kapan Pakai Apa</h3>
+        <pre class="diagram">
+Pertanyaan                              → Teknik
+────────────────────────────────────────┼──────────────────────────────────────
+"Berapa total/rata-rata per grup?"      → GROUP BY + aggregate
+"Filter berdasarkan hasil aggregate?"   → HAVING (bukan WHERE)
+"Nomor urut per grup?"                  → ROW_NUMBER() OVER (PARTITION BY ...)
+"Top N per grup?"                       → RANK/DENSE_RANK + filter di CTE
+"Nilai baris sebelumnya/sesudahnya?"    → LAG() / LEAD()
+"Running total?"                        → SUM() OVER (UNBOUNDED PRECEDING AND CURRENT ROW)
+"Moving average N hari?"                → AVG() OVER (ROWS BETWEEN N-1 PRECEDING AND CURRENT ROW)
+"Query terlalu kompleks/susah dibaca?"  → Pecah jadi beberapa CTE
+"Churn: aktif bulan lalu, tidak bulan ini?" → LAG(active_month) + kondisi gap
+"Cohort: kapan pertama aktif?"          → MIN(date) per customer → DATE_TRUNC(month)</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <page-footer>
+    <div class="footer-nav">
+      <a href="day16.html">← Day 16</a>
+      <span class="footer-center">Day 17 — Live Coding Final · <a href="https://github.com/thosangs/dibimbing_sql" target="_blank">GitHub</a></span>
+      <a href="index.html">Semua Materi →</a>
+    </div>
+  </page-footer>
+</body>
+</html>

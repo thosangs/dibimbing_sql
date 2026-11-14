@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 15 — Advanced SQL · Dibimbing SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#09090b;--bg-soft:#111113;--card:#18181b;--border:#27272a;--text:#fafafa;--muted:#71717a;--blue:#3b82f6;--blue-light:#93c5fd;--blue-dim:rgba(59,130,246,0.12);--code-bg:#0d0d10;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+    a{color:var(--blue-light);text-decoration:none;}a:hover{text-decoration:underline;}
+    code,pre,.mono{font-family:'JetBrains Mono',monospace;}
+    nav{border-bottom:2px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .nav-brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+    .nav-links{display:flex;gap:20px;}.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .nav-links a:hover{color:var(--text);text-decoration:none;}
+    .hero{padding:64px 24px 48px;border-bottom:2px solid var(--border);background:radial-gradient(600px 350px at 50% -5%,rgba(59,130,246,.15),transparent 70%);}
+    .hero-inner{max-width:900px;margin:0 auto;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);display:inline-block;padding:4px 12px;margin-bottom:20px;}
+    .hero h1{font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px;}
+    .hero p.sub{font-size:16px;color:var(--muted);max-width:640px;margin-bottom:24px;}
+    .pills{display:flex;flex-wrap:wrap;gap:8px;}
+    .pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue-light);padding:4px 10px;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    .topic{padding:52px 0;border-bottom:2px solid var(--border);}
+    .topic:last-child{border-bottom:none;}
+    .topic-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+    .topic h2{font-size:22px;font-weight:700;margin-bottom:16px;}
+    .topic p{color:var(--muted);font-size:15px;margin-bottom:20px;line-height:1.7;}
+    .topic p strong{color:var(--text);}
+    pre.sql{background:var(--code-bg);border:2px solid var(--border);padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue-light);overflow-x:auto;white-space:pre;line-height:1.6;margin:20px 0;}
+    .code-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);display:inline-block;padding:3px 8px;margin-bottom:-2px;background:var(--card);}
+    .annotation{background:var(--card);border-left:3px solid var(--blue);padding:16px 20px;margin:16px 0;}
+    .annotation p{color:var(--muted);font-size:14px;margin:0;}.annotation code{background:var(--code-bg);padding:1px 5px;color:var(--blue-light);font-size:12px;}
+    .how-it-works{background:var(--card);border:2px solid var(--border);padding:28px;margin:24px 0;}
+    .how-it-works h3{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+    pre.diagram{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:none;border:none;padding:0;overflow-x:auto;white-space:pre;}
+    page-footer{display:block;border-top:2px solid var(--border);padding:32px 24px;}
+    .footer-nav{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-nav a{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);}
+    .footer-center{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;}
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand"><a href="index.html" style="color:var(--blue);text-decoration:none">← Semua Materi</a></span>
+    <span class="nav-brand" style="margin:0 auto">DIBIMBING SQL</span>
+    <div class="nav-links">
+      <a href="day14.html">← Day 14</a>
+      <a href="day16.html">Day 16 →</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="day-badge">Day 15 / 17</div>
+      <h1>Advanced SQL Queries</h1>
+      <p class="sub">Subqueries, CTEs, ranking functions, string operations, dan date/time functions — teknik yang dipakai untuk menjawab pertanyaan bisnis kompleks.</p>
+      <div class="pills">
+        <span class="pill">Subqueries</span>
+        <span class="pill">CTEs</span>
+        <span class="pill">ROW_NUMBER / RANK</span>
+        <span class="pill">String Functions</span>
+        <span class="pill">Date/Time</span>
+        <span class="pill">Math Functions</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- TOPIC 1: SUBQUERIES -->
+    <div class="topic">
+      <div class="topic-label">// 01 — Subqueries</div>
+      <h2>Scalar, Correlated &amp; Set Subqueries</h2>
+      <p><strong>Subquery</strong> adalah query di dalam query. <strong>Scalar subquery</strong> mengembalikan tepat satu nilai (satu baris, satu kolom) dan bisa dipakai di mana saja ekspresi diizinkan. <strong>Subquery dengan IN</strong> mengembalikan daftar nilai — PostgreSQL mengonversinya ke hash semi-join. <strong>Correlated subquery</strong> mereferensikan tabel dari query luar — dievaluasi ulang per-baris sehingga lebih lambat; pertimbangkan JOIN atau CTE sebagai alternatif.</p>
+      <div class="code-label">examples/subqueries.sql</div>
+      <pre class="sql">-- IN subquery: customer yang pernah menyewa 'ACADEMY DINOSAUR'
+SELECT DISTINCT c.customer_id, c.first_name, c.last_name
+FROM customer c
+WHERE c.customer_id IN (
+  SELECT r.customer_id
+  FROM rental r
+  JOIN inventory i ON i.inventory_id = r.inventory_id
+  JOIN film f      ON f.film_id = i.film_id
+  WHERE UPPER(f.title) = 'ACADEMY DINOSAUR'
+);
+
+-- Nested IN: film dengan actor yang main di lebih dari 10 film
+SELECT f.film_id, f.title
+FROM film f
+WHERE f.film_id IN (
+  SELECT fa.film_id
+  FROM film_actor fa
+  WHERE fa.actor_id IN (
+    SELECT actor_id
+    FROM film_actor
+    GROUP BY actor_id
+    HAVING COUNT(*) > 10   -- filter actor produktif
+  )
+);
+
+-- Subquery di FROM (derived table): top 5 actor by film count
+SELECT a.actor_id, a.first_name, a.last_name, actor_stats.film_count
+FROM (
+  SELECT fa.actor_id, COUNT(*) AS film_count
+  FROM film_actor fa
+  GROUP BY fa.actor_id
+) AS actor_stats
+JOIN actor a ON a.actor_id = actor_stats.actor_id
+ORDER BY actor_stats.film_count DESC, a.actor_id
+LIMIT 5;</pre>
+      <div class="annotation">
+        <p>Subquery di <code>FROM</code> disebut <strong>derived table</strong> — harus selalu diberi alias. Berbeda dengan CTE, derived table tidak bisa direferensikan lebih dari sekali dalam satu query.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 2: CTEs -->
+    <div class="topic">
+      <div class="topic-label">// 02 — CTEs</div>
+      <h2>Common Table Expressions (WITH Clause)</h2>
+      <p><strong>CTE</strong> mendefinisikan named temporary result set di awal query menggunakan <code>WITH name AS (...)</code>. CTE membuat query kompleks lebih mudah dibaca dengan memecahnya menjadi langkah-langkah bernama. Secara default PostgreSQL memperlakukan CTE sebagai "optimization fence" hanya sampai v12 — sejak v12 planner bisa inline CTE jika menguntungkan. <strong>Multiple CTEs</strong> bisa didefinisikan dalam satu blok WITH dipisah koma dan saling mereferensikan.</p>
+      <div class="code-label">examples/ctes.sql</div>
+      <pre class="sql">-- CTE sederhana: top 10 customer by total spend
+WITH customer_spend AS (
+  SELECT customer_id, SUM(amount) AS total_spend
+  FROM payment
+  GROUP BY customer_id
+)
+SELECT c.customer_id, c.first_name, c.last_name, cs.total_spend
+FROM customer c
+JOIN customer_spend cs USING (customer_id)
+ORDER BY cs.total_spend DESC
+LIMIT 10;
+
+-- CTE dengan window function: rental ke-2 tiap customer
+WITH ranked_rentals AS (
+  SELECT customer_id, rental_id, rental_date,
+         ROW_NUMBER() OVER (PARTITION BY customer_id
+                            ORDER BY rental_date DESC) AS rn
+  FROM rental
+)
+SELECT customer_id, rental_id, rental_date
+FROM ranked_rentals
+WHERE rn = 2    -- filter SETELAH ranking dihitung
+ORDER BY customer_id;</pre>
+      <div class="annotation">
+        <p>CTE sangat berguna dikombinasikan dengan window functions karena <code>WHERE</code> tidak bisa dipakai langsung pada hasil window function — harus dibungkus dulu dalam subquery atau CTE, lalu difilter di luar.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 3: RANKING -->
+    <div class="topic">
+      <div class="topic-label">// 03 — Ranking Functions</div>
+      <h2>ROW_NUMBER, RANK, DENSE_RANK</h2>
+      <p>Tiga fungsi ranking memberikan nomor urut per grup. <strong>ROW_NUMBER()</strong> selalu unik — tidak ada dua baris yang dapat nilai sama meskipun tiebreak. <strong>RANK()</strong> memberikan nomor sama untuk tie tapi melewati angka berikutnya (1, 2, 2, 4). <strong>DENSE_RANK()</strong> memberikan nomor sama untuk tie tanpa melewati angka (1, 2, 2, 3). Semua membutuhkan <code>OVER (ORDER BY ...)</code> dan opsional <code>PARTITION BY</code> untuk ranking per grup.</p>
+
+      <div class="how-it-works">
+        <h3>// ROW_NUMBER vs RANK vs DENSE_RANK</h3>
+        <pre class="diagram">
+Film        | Rentals | ROW_NUMBER | RANK | DENSE_RANK
+────────────┼─────────┼────────────┼──────┼───────────
+Bucket Brother│  34   │     1      │  1   │     1
+Rocketeer    │  33   │     2      │  2   │     2
+Ridgemont    │  33   │     3      │  2   │     2    ← tie
+Juggler      │  32   │     4      │  4   │     3    ← RANK skip ke 4, DENSE_RANK lanjut ke 3
+Zorro Ark    │  31   │     5      │  5   │     4</pre>
+      </div>
+
+      <div class="code-label">examples (CTE + ranking)</div>
+      <pre class="sql">-- Rental ke-2 tiap customer (pakai ROW_NUMBER karena harus unik)
+WITH ranked_rentals AS (
+  SELECT customer_id, rental_id, rental_date,
+         ROW_NUMBER() OVER (
+           PARTITION BY customer_id
+           ORDER BY rental_date DESC
+         ) AS rn
+  FROM rental
+)
+SELECT customer_id, rental_id, rental_date
+FROM ranked_rentals
+WHERE rn = 2
+ORDER BY customer_id;
+
+-- Top 3 film per kategori (RANK: boleh ada tie di posisi 1)
+WITH film_rentals AS (
+  SELECT c.name AS category, f.title,
+         COUNT(r.rental_id) AS rentals
+  FROM category c
+  JOIN film_category fc ON fc.category_id = c.category_id
+  JOIN film f           ON f.film_id = fc.film_id
+  JOIN inventory i      ON i.film_id = f.film_id
+  JOIN rental r         ON r.inventory_id = i.inventory_id
+  GROUP BY c.name, f.title
+),
+ranked AS (
+  SELECT *, DENSE_RANK() OVER (
+    PARTITION BY category ORDER BY rentals DESC
+  ) AS rnk
+  FROM film_rentals
+)
+SELECT category, title, rentals, rnk
+FROM ranked
+WHERE rnk &lt;= 3
+ORDER BY category, rnk;</pre>
+    </div>
+
+    <!-- TOPIC 4: STRING FUNCTIONS -->
+    <div class="topic">
+      <div class="topic-label">// 04 — String Functions</div>
+      <h2>LEFT, SUBSTRING, CONCAT, UPPER, ILIKE</h2>
+      <p>PostgreSQL memiliki library string yang kaya. <strong>LEFT/RIGHT</strong> mengekstrak n karakter dari ujung string. <strong>SUBSTRING</strong> (atau <code>substr</code>) mengekstrak bagian tengah. <strong>CONCAT</strong> menggabungkan string — alternatifnya operator <code>||</code>. <strong>UPPER/LOWER</strong> mengubah case. <strong>ILIKE</strong> adalah case-insensitive LIKE — lebih lambat karena tidak bisa menggunakan B-tree index biasa (butuh <code>citext</code> atau index functional).</p>
+      <div class="code-label">examples/strings.sql</div>
+      <pre class="sql">-- LEFT: 5 karakter pertama dari judul film
+SELECT title, LEFT(title, 5) AS left5
+FROM film ORDER BY film_id LIMIT 10;
+
+-- SUBSTRING: karakter posisi 3 sampai 8 (panjang 6)
+SELECT title, SUBSTRING(title FROM 3 FOR 6) AS sub_3_8
+FROM film ORDER BY film_id LIMIT 10;
+
+-- REPLACE: ganti 'A' dengan '*'
+SELECT title, REPLACE(title, 'A', '*') AS replaced
+FROM film ORDER BY film_id LIMIT 10;
+
+-- CONCAT: nama lengkap actor
+SELECT CONCAT(first_name, ' ', last_name) AS actor_name
+FROM actor ORDER BY actor_id LIMIT 10;
+
+-- LENGTH: panjang judul (dalam bytes = chars untuk ASCII)
+SELECT title, LENGTH(title) AS title_len
+FROM film ORDER BY title_len DESC, title LIMIT 10;
+
+-- ILIKE: case-insensitive match
+SELECT title FROM film
+WHERE title ILIKE 'aca%'   -- 'ACADEMY...', 'academy...', 'Aca...'
+ORDER BY film_id LIMIT 10;</pre>
+    </div>
+
+    <!-- TOPIC 5: DATE/TIME -->
+    <div class="topic">
+      <div class="topic-label">// 05 — Date &amp; Time Functions</div>
+      <h2>NOW, DATE_TRUNC, EXTRACT, INTERVAL</h2>
+      <p><strong>DATE_TRUNC</strong> memotong timestamp ke granularitas tertentu (hari, bulan, tahun) — hasilnya tetap TIMESTAMP, bukan DATE, sehingga bisa langsung di-GROUP BY untuk aggregasi per-bulan. <strong>EXTRACT</strong> mengambil field numerik (jam, hari, bulan, tahun). <strong>INTERVAL</strong> merepresentasikan durasi dan bisa dijumlahkan/dikurangkan dari TIMESTAMP. Untuk timestamp column, gunakan <strong>half-open range</strong> (<code>&gt;= start AND &lt; end</code>) bukan BETWEEN agar index-friendly dan tidak ada boundary issue.</p>
+      <div class="code-label">examples/datetime.sql</div>
+      <pre class="sql">-- NOW dan interval arithmetic
+SELECT NOW() AS now_ts,
+       NOW() + INTERVAL '7 days'  AS in_7_days,
+       NOW() - INTERVAL '3 hours' AS three_hours_ago;
+
+-- DATE_TRUNC: payment per bulan (GROUP BY)
+SELECT DATE_TRUNC('month', payment_date) AS month,
+       SUM(amount) AS total_amount
+FROM payment
+GROUP BY 1
+ORDER BY 1;
+
+-- EXTRACT: distribusi payment per jam
+SELECT EXTRACT(HOUR FROM payment_date) AS hour_of_day,
+       COUNT(*) AS payments
+FROM payment
+GROUP BY 1
+ORDER BY 1;
+
+-- Half-open range: cara BENAR filter timestamp per hari
+SELECT payment_id, payment_date, amount
+FROM payment
+WHERE payment_date >= DATE '2005-05-25'
+  AND payment_date &lt;  DATE '2005-05-26'  -- tidak inklusif akhir
+ORDER BY payment_date LIMIT 10;
+
+-- Relative window: 7 hari terakhir
+SELECT COUNT(*) AS payments_last_7_days
+FROM payment
+WHERE payment_date >= NOW() - INTERVAL '7 days';</pre>
+      <div class="annotation">
+        <p>Hindari <code>payment_date::date = '2005-05-25'</code> pada kolom TIMESTAMPTZ berindeks — cast menghancurkan kemampuan planner menggunakan index. Pakai half-open range: <code>&gt;= date AND &lt; date + 1</code>.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <page-footer>
+    <div class="footer-nav">
+      <a href="day14.html">← Day 14</a>
+      <span class="footer-center">Day 15 — Advanced SQL</span>
+      <a href="day16.html">Day 16: Window Functions →</a>
+    </div>
+  </page-footer>
+</body>
+</html>

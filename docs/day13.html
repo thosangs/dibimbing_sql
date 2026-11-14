@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 13 — Introduction to Databases · Dibimbing SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09090b; --bg-soft: #111113; --card: #18181b; --border: #27272a;
+      --text: #fafafa; --muted: #71717a; --blue: #3b82f6; --blue-light: #93c5fd;
+      --blue-dim: rgba(59,130,246,0.12); --code-bg: #0d0d10;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+    a { color: var(--blue-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    nav { border-bottom: 2px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .nav-brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    .hero { padding: 64px 24px 48px; border-bottom: 2px solid var(--border); background: radial-gradient(600px 350px at 50% -5%, rgba(59,130,246,0.15), transparent 70%); }
+    .hero-inner { max-width: 900px; margin: 0 auto; }
+    .day-badge { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--blue); border: 1px solid var(--blue); display: inline-block; padding: 4px 12px; margin-bottom: 20px; }
+    .hero h1 { font-size: clamp(28px, 5vw, 52px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 14px; }
+    .hero p.sub { font-size: 16px; color: var(--muted); max-width: 640px; margin-bottom: 24px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue-light); padding: 4px 10px; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    .topic { padding: 52px 0; border-bottom: 2px solid var(--border); }
+    .topic:last-child { border-bottom: none; }
+    .topic-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+    .topic h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+    .topic p { color: var(--muted); font-size: 15px; margin-bottom: 20px; line-height: 1.7; }
+    .topic p strong { color: var(--text); }
+
+    pre.sql {
+      background: var(--code-bg); border: 2px solid var(--border);
+      padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      color: var(--blue-light); overflow-x: auto; white-space: pre; line-height: 1.6;
+      margin: 20px 0;
+    }
+    .code-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); display: inline-block; padding: 3px 8px; margin-bottom: -2px; background: var(--card); }
+
+    .annotation { background: var(--card); border-left: 3px solid var(--blue); padding: 16px 20px; margin: 16px 0; }
+    .annotation p { color: var(--muted); font-size: 14px; margin: 0; }
+    .annotation code { background: var(--code-bg); padding: 1px 5px; color: var(--blue-light); font-size: 12px; }
+
+    .how-it-works { background: var(--card); border: 2px solid var(--border); padding: 28px; margin: 24px 0; }
+    .how-it-works h3 { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
+    pre.diagram { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); background: none; border: none; padding: 0; overflow-x: auto; white-space: pre; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .info-box { background: var(--card); border: 2px solid var(--border); padding: 20px; }
+    .info-box h4 { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+    .info-box ul { list-style: none; }
+    .info-box ul li { font-size: 13px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; }
+    .info-box ul li:last-child { border-bottom: none; }
+
+    page-footer { display: block; border-top: 2px solid var(--border); padding: 32px 24px; }
+    .footer-nav { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .footer-nav a { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); }
+    .footer-center { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      nav { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand"><a href="index.html" style="color:var(--blue);text-decoration:none">← Semua Materi</a></span>
+    <span class="nav-brand" style="margin:0 auto">DIBIMBING SQL</span>
+    <div class="nav-links">
+      <a href="day14.html">Day 14 →</a>
+      <a href="https://github.com/thosangs/dibimbing_sql" target="_blank">GitHub</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="day-badge">Day 13 / 17</div>
+      <h1>Introduction to Databases</h1>
+      <p class="sub">Fondasi relational database, konsep ACID, DDL/DML, column types, dan strategi materialisasi di PostgreSQL — semua pakai dataset dvdrental.</p>
+      <div class="pills">
+        <span class="pill">Relational Model</span>
+        <span class="pill">ACID</span>
+        <span class="pill">DDL / DML</span>
+        <span class="pill">Column Types</span>
+        <span class="pill">Views &amp; Materialized Views</span>
+        <span class="pill">CTEs</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- TOPIC 1: RELATIONAL MODEL -->
+    <div class="topic">
+      <div class="topic-label">// 01 — Konsep Dasar</div>
+      <h2>Relational Model &amp; ACID</h2>
+      <p>Relational database menyimpan data dalam <strong>tabel</strong> (relasi) — kumpulan baris (tuple) dengan kolom (atribut) bertipe fixed. <strong>Primary key</strong> uniquely mengidentifikasi setiap baris; <strong>foreign key</strong> membuat link antar tabel tanpa duplikasi data. Semua operasi dibungkus <strong>transaksi ACID</strong>: Atomicity (semua-atau-tidak-sama-sekali), Consistency (state valid), Isolation (transaksi paralel tidak saling ganggu), Durability (commit = permanen).</p>
+
+      <div class="how-it-works">
+        <h3>// How It Works — Relational Model</h3>
+        <pre class="diagram">
+TABLE: customer                     TABLE: payment
+┌─────────────┬──────────┬────────┐  ┌────────────┬─────────────┬────────┐
+│ customer_id │ first_name│last_name│  │ payment_id │ customer_id │ amount │
+│  PK int4   │ varchar   │ varchar │  │  PK int4   │  FK int4    │numeric │
+├─────────────┼──────────┼────────┤  ├────────────┼─────────────┼────────┤
+│      1      │  MARY    │ SMITH  │  │    1       │      1      │  2.99  │
+│      2      │  PATRICIA│ JOHNSON│  │    2       │      1      │  0.99  │
+└─────────────┴──────────┴────────┘  │    3       │      2      │  5.99  │
+                                      └────────────┴─────────────┴────────┘
+customer_id=1 dalam payment adalah FK → customer.customer_id</pre>
+      </div>
+
+      <div class="grid-2">
+        <div class="info-box">
+          <h4>ACID</h4>
+          <ul>
+            <li>Atomicity — semua atau rollback</li>
+            <li>Consistency — state valid sebelum/sesudah</li>
+            <li>Isolation — tidak ada dirty reads</li>
+            <li>Durability — commit = disimpan permanent</li>
+          </ul>
+        </div>
+        <div class="info-box">
+          <h4>SQL vs NoSQL</h4>
+          <ul>
+            <li>SQL: schema ketat, JOIN kuat, ACID penuh</li>
+            <li>Key-Value: Redis — cache, session</li>
+            <li>Document: MongoDB — JSON flexible</li>
+            <li>Columnar: Cassandra — write heavy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2: DDL -->
+    <div class="topic">
+      <div class="topic-label">// 02 — DDL</div>
+      <h2>Data Definition Language</h2>
+      <p>DDL mendefinisikan <strong>struktur</strong> database — bukan datanya. <code>CREATE TABLE</code> mendefinisikan kolom dan constraint; <code>ALTER TABLE</code> mengubah schema yang sudah ada (tambah kolom, tambah constraint) tanpa rewrite seluruh tabel di PostgreSQL. <code>CREATE INDEX</code> membuat secondary lookup structure — B-tree by default — sehingga query dengan <code>WHERE</code> pada kolom tersebut tidak perlu full scan.</p>
+      <div class="code-label">examples/ddl.sql</div>
+      <pre class="sql">-- CREATE TABLE dengan PK dan FK referencing dvdrental.customer
+DROP TABLE IF EXISTS public.customer_note CASCADE;
+CREATE TABLE public.customer_note (
+    customer_id integer NOT NULL REFERENCES public.customer(customer_id),
+    note        text    NOT NULL,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (customer_id, created_at)   -- composite PK
+);
+
+-- ALTER TABLE: tambah kolom dan CHECK constraint
+ALTER TABLE public.film
+    ADD COLUMN IF NOT EXISTS imdb_url text;
+-- CHECK: hanya nilai yang match regex yang bisa disimpan
+ALTER TABLE public.film
+    ADD CONSTRAINT film_imdb_url_chk
+    CHECK (imdb_url IS NULL OR imdb_url ~ '^https?://');
+
+-- Partial index: hanya index rental yang belum dikembalikan
+-- Index kecil, lookup cepat untuk query outstanding rentals
+CREATE INDEX IF NOT EXISTS idx_rental_outstanding
+    ON public.rental (rental_date)
+    WHERE return_date IS NULL;</pre>
+      <div class="annotation">
+        <p><code>PRIMARY KEY (customer_id, created_at)</code> — composite PK, kombinasi dua kolom harus unique. <code>REFERENCES</code> otomatis membuat FK constraint dengan integrity check. <code>WHERE return_date IS NULL</code> pada CREATE INDEX = <strong>partial index</strong>: hanya baris yang match kondisi yang diindeks, sehingga index jauh lebih kecil dan lebih cepat.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 3: DML -->
+    <div class="topic">
+      <div class="topic-label">// 03 — DML</div>
+      <h2>Data Manipulation Language</h2>
+      <p><strong>INSERT</strong> menambah baris baru. <strong>UPDATE</strong> mengubah nilai kolom pada baris yang match WHERE — tanpa WHERE, semua baris berubah. <strong>DELETE</strong> menghapus baris. <strong>UPSERT</strong> (<code>INSERT ... ON CONFLICT DO UPDATE</code>) adalah operasi atomik: insert kalau tidak ada konflik, update kalau ada — menghindari race condition antara SELECT + INSERT terpisah. <code>RETURNING</code> mengembalikan nilai kolom dari baris yang baru dimodifikasi tanpa SELECT tambahan.</p>
+      <div class="code-label">examples/dml.sql</div>
+      <pre class="sql">BEGIN;   -- semua operasi dibungkus transaksi
+
+-- INSERT dengan RETURNING: langsung dapat actor_id yang di-generate
+INSERT INTO public.actor (first_name, last_name)
+VALUES ('TRAIN', 'DEMO')
+RETURNING actor_id, first_name, last_name;
+
+-- UPDATE: naikkan rental_rate untuk film G/PG
+UPDATE public.film
+SET rental_rate = rental_rate + 0.50
+WHERE rating IN ('G', 'PG')
+RETURNING film_id, title, rating, rental_rate;
+
+-- DELETE dengan USING: referensikan tabel lain di klausa WHERE
+DELETE FROM public.film_actor fa
+USING public.actor a
+WHERE a.actor_id = fa.actor_id
+  AND a.first_name = 'TRAIN'
+  AND a.last_name  = 'DEMO'
+RETURNING fa.actor_id, fa.film_id;
+
+-- UPSERT: ON CONFLICT mencegah error duplicate key
+-- Jika actor_id=99999 sudah ada → DO UPDATE; kalau tidak → INSERT
+INSERT INTO public.actor (actor_id, first_name, last_name)
+VALUES (99999, 'UPSERT', 'DEMO')
+ON CONFLICT (actor_id) DO UPDATE
+SET first_name  = EXCLUDED.first_name,
+    last_name   = EXCLUDED.last_name,
+    last_update = now()
+RETURNING actor_id, first_name, last_name;
+
+ROLLBACK;  -- demo saja, kembalikan semua perubahan</pre>
+      <div class="annotation">
+        <p><code>EXCLUDED</code> adalah pseudo-table yang merujuk ke baris yang <em>gagal di-insert</em> karena conflict — sehingga kita bisa akses nilai yang ingin di-upsert. <code>RETURNING</code> bekerja seperti SELECT pada baris yang baru dimodifikasi, tanpa round-trip SQL tambahan.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 4: COLUMN TYPES -->
+    <div class="topic">
+      <div class="topic-label">// 04 — Column Types</div>
+      <h2>Tipe Data PostgreSQL</h2>
+      <p>PostgreSQL memiliki type system yang kaya. <strong>CHAR(n)</strong> selalu disimpan n karakter (space-padded) — jarang dipakai. <strong>VARCHAR(n)</strong> variabel sampai n, <strong>TEXT</strong> tanpa batas. <strong>NUMERIC(p,s)</strong> fixed-precision cocok untuk uang — tidak ada floating-point error seperti FLOAT. <strong>TIMESTAMPTZ</strong> menyimpan timezone offset sehingga aman lintas zona waktu; <strong>DATE</strong> hanya tanggal. <strong>INTERVAL</strong> merepresentasikan durasi waktu dan bisa diaritmetikkan langsung dengan DATE/TIMESTAMP.</p>
+      <div class="code-label">examples/column_types.sql</div>
+      <pre class="sql">CREATE TABLE public.typing_demo (
+    id          serial       PRIMARY KEY,
+    code        char(5),              -- fixed 5 chars, space-padded jika lebih pendek
+    name        varchar(50),          -- max 50 chars, tidak di-pad
+    description text,                 -- unlimited
+    active      boolean DEFAULT true, -- true/false/'t'/'f'/1/0
+    qty         integer,              -- 32-bit signed int
+    price       numeric(10,2),        -- 10 digit total, 2 di belakang desimal
+    created_on  date DEFAULT current_date,
+    updated_at  timestamptz DEFAULT now(),
+    duration    interval              -- e.g. '3 days 4 hours', '90 minutes'
+);
+
+-- Demonstrasi arithmetic dengan types
+SELECT
+    id,
+    code,
+    length(code)              AS len_code_char,   -- CHAR: hitung padding
+    rtrim(code)               AS code_trimmed,    -- trim trailing spaces
+    price,
+    price::text               AS price_as_text,   -- cast numeric → text
+    (created_on + duration)   AS created_plus_duration  -- date + interval
+FROM public.typing_demo
+ORDER BY id;</pre>
+      <div class="annotation">
+        <p><code>CHAR(5)</code> untuk nilai 'AB' akan disimpan sebagai 'AB   ' (3 spasi) — <code>length()</code> mengembalikan 5, bukan 2. Gunakan <code>rtrim()</code> untuk membersihkannya. <code>price::text</code> adalah cast sintaks PostgreSQL; alternatifnya <code>CAST(price AS text)</code>. <code>created_on + duration</code> bekerja karena PostgreSQL tahu cara menjumlahkan DATE + INTERVAL.</p>
+      </div>
+    </div>
+
+    <!-- TOPIC 5: MATERIALIZATION -->
+    <div class="topic">
+      <div class="topic-label">// 05 — Materialization Strategies</div>
+      <h2>CTE, View, Materialized View, Temp Table</h2>
+      <p>PostgreSQL menawarkan beberapa cara menyimpan/menstrukturisasi hasil query sementara atau permanen. <strong>CTE</strong> (<code>WITH</code>) adalah subquery bernama dalam satu statement — biasanya di-inline oleh planner, tapi berguna untuk readability. <strong>View</strong> adalah query yang disimpan tapi dieksekusi tiap kali dipanggil. <strong>Materialized View</strong> menyimpan hasilnya secara fisik — perlu <code>REFRESH</code> manual untuk update data. <strong>Temp Table</strong> hanya ada selama session berlangsung.</p>
+      <div class="code-label">examples/materialization.sql</div>
+      <pre class="sql">-- 1) CTE: query bernama dalam satu statement
+WITH recent_rentals AS (
+    SELECT r.rental_id, r.customer_id, r.rental_date
+    FROM public.rental r
+    WHERE r.rental_date >= now() - interval '60 days'
+)
+SELECT c.customer_id, c.first_name, c.last_name,
+       COUNT(rr.rental_id) AS rentals_last_60d
+FROM public.customer c
+LEFT JOIN recent_rentals rr ON rr.customer_id = c.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+ORDER BY rentals_last_60d DESC
+LIMIT 10;
+
+-- 2) View: virtual, dieksekusi setiap kali SELECT dipanggil
+CREATE VIEW public.vw_film_rental_counts AS
+SELECT f.film_id, f.title, x.num_rentals
+FROM public.film f
+LEFT JOIN (
+    SELECT i.film_id, COUNT(r.rental_id) AS num_rentals
+    FROM public.inventory i
+    LEFT JOIN public.rental r ON r.inventory_id = i.inventory_id
+    GROUP BY i.film_id
+) x ON x.film_id = f.film_id;
+
+-- 3) Materialized View: disimpan fisik, perlu REFRESH
+CREATE MATERIALIZED VIEW public.mv_top_films AS
+SELECT f.film_id, f.title, x.num_rentals
+FROM public.film f
+JOIN (
+    SELECT i.film_id, COUNT(r.rental_id) AS num_rentals
+    FROM public.inventory i
+    JOIN public.rental r ON r.inventory_id = i.inventory_id
+    GROUP BY i.film_id
+) x ON x.film_id = f.film_id
+ORDER BY x.num_rentals DESC
+WITH NO DATA;  -- definisi dulu, data belakangan
+
+REFRESH MATERIALIZED VIEW public.mv_top_films;  -- populasi data</pre>
+
+      <div class="how-it-works">
+        <h3>// Perbandingan Strategi</h3>
+        <pre class="diagram">
+Strategi          | Storage | Stale? | Use Case
+──────────────────┼─────────┼────────┼──────────────────────────────
+CTE (WITH)        | None    | No     | Readability, intermediate step
+Derived Table     | None    | No     | One-off subquery in FROM
+Temp Table        | Disk    | No     | Reuse result dalam satu session
+UNLOGGED Table    | Disk    | No     | Staging data, crash-ok
+View              | None    | No     | Abstraksi, access control
+Materialized View | Disk    | YES    | Pre-compute heavy aggregations</pre>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <page-footer>
+    <div class="footer-nav">
+      <a href="index.html">← Semua Materi</a>
+      <span class="footer-center">Day 13 — Introduction to Databases</span>
+      <a href="day14.html">Day 14: Basic SQL →</a>
+    </div>
+  </page-footer>
+</body>
+</html>

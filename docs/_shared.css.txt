@@ -1,0 +1,13 @@
+/* Shared style tokens — inline this in each page */
+:root {
+  --bg: #09090b;
+  --bg-soft: #111113;
+  --card: #18181b;
+  --border: #27272a;
+  --text: #fafafa;
+  --muted: #71717a;
+  --blue: #3b82f6;
+  --blue-light: #93c5fd;
+  --blue-dim: rgba(59,130,246,0.12);
+  --code-bg: #0d0d10;
+}
