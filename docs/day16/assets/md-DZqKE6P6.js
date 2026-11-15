@@ -1,0 +1,11 @@
+import{t as e}from"./slidev/CodeBlockWrapper-pBrdobeV.js";import{I as t,J as n,b as r,ft as i,g as a,h as o,mt as s,w as c,y as l}from"./modules/shiki-C_MmXx-G.js";import{t as u}from"./slidev/default-CViHNSzt.js";import{nt as d,rt as f}from"./index-CURxZniV.js";var p={__name:`day16.md__slidev_3`,setup(p){let{$slidev:m,$nav:h,$clicksContext:g,$clicks:_,$page:v,$renderContext:y,$frontmatter:b}=f();return g.setup(),(f,p)=>{let m=e;return t(),a(u,s(c(i(d)(i(b),2))),{default:n(()=>[p[1]||=o(`div`,{class:`eyebrow`},`// What is a Window Function`,-1),p[2]||=o(`h2`,null,`Aggregate vs Window`,-1),r(m,{title:``,ranges:[]},{default:n(()=>[...p[0]||=[o(`pre`,{class:`shiki shiki-themes vitesse-dark vitesse-light slidev-code`,style:{"--shiki-dark":`#dbd7caee`,"--shiki-light":`#393a34`,"--shiki-dark-bg":`#121212`,"--shiki-light-bg":`#ffffff`}},[o(`code`,{class:`language-text`},[o(`span`,{class:`line`},[o(`span`,null,`-- GROUP BY: collapse semua baris → 1 output per group`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`SELECT customer_id, SUM(amount) AS total`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`FROM payment`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`GROUP BY customer_id;`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`-- Output: 1 baris per customer`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`-- WINDOW: kalkulasi tanpa collapse baris`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`SELECT customer_id, payment_id, amount,`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`       SUM(amount) OVER (PARTITION BY customer_id) AS total_per_customer`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`FROM payment;`)]),l(`
+`),o(`span`,{class:`line`},[o(`span`,null,`-- Output: semua baris tetap ada, + kolom hasil kalkulasi`)])])],-1)]]),_:1}),p[3]||=o(`blockquote`,null,[o(`p`,null,[l(`Window function = compute `),o(`strong`,null,`across related rows`),l(`, tapi baris tetap utuh.`)])],-1)]),_:1},16)}}};export{p as default};

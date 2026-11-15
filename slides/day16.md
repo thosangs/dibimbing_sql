@@ -269,6 +269,96 @@ LIMIT 50;
 
 ---
 
+<div class="eyebrow">// Frame Clauses — Visual</div>
+
+## Frame = "Jendela" di dalam Partition
+
+<div style="font-size:0.82rem">
+
+Contoh: 5 baris payment customer\_id=1, diurutkan payment\_date.
+
+| # | amount | ROWS 1 PREC→CUR | RANGE CUR→CUR (kalau ada ties) | GROUPS 1 PREC→CUR |
+|---|--------|-----------------|-------------------------------|-------------------|
+| 1 | 2.99 | **1** | **1** | **1** |
+| 2 | 2.99 | **1,2** | **1,2** (sama hari) | **1,2** (1 group) |
+| 3 | 4.99 | **2,3** | **3** | **1,2,3** (2 groups) |
+| 4 | 0.99 | **3,4** | **4** | **3,4** |
+| 5 | 4.99 | **4,5** | **5** | **4,5** |
+
+</div>
+
+<div class="row mt-2">
+<div class="card flat" style="font-size:0.8rem;flex:1"><b>ROWS</b> — posisi fisik. Selalu tepat N baris, tidak peduli nilai.</div>
+<div class="card flat" style="font-size:0.8rem;flex:1"><b>RANGE</b> — nilai ORDER BY. Semua baris dengan nilai <em>sama</em> masuk sekaligus.</div>
+<div class="card flat" style="font-size:0.8rem;flex:1"><b>GROUPS</b> — peer group. 1 "group" = semua baris dengan nilai ORDER BY identik, dihitung sebagai 1 step.</div>
+</div>
+
+---
+
+<div class="eyebrow">// Frame Clauses — RANGE dengan Ties</div>
+
+## RANGE — Hati-hati Kalau Ada Duplikat
+
+```sql
+-- Gunakan DATE_TRUNC supaya banyak payment jatuh di hari yang sama
+SELECT
+  customer_id, payment_id,
+  DATE_TRUNC('day', payment_date)::date AS pay_day,
+  amount,
+
+  -- ROWS: tepat 1 baris sebelum (fisik)
+  SUM(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY DATE_TRUNC('day', payment_date)
+    ROWS BETWEEN 1 PRECEDING AND CURRENT ROW
+  ) AS rows_1prec,
+
+  -- RANGE: semua baris di hari yang sama (bisa banyak!)
+  SUM(amount) OVER (
+    PARTITION BY customer_id
+    ORDER BY DATE_TRUNC('day', payment_date)
+    RANGE BETWEEN CURRENT ROW AND CURRENT ROW
+  ) AS range_same_day
+
+FROM payment
+ORDER BY customer_id, pay_day, payment_id
+LIMIT 30;
+```
+
+> **Gotcha**: RANGE default (`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`) bisa mahal dan hasilnya counter-intuitive kalau ada ties. Gunakan ROWS kalau yang diinginkan adalah "N baris fisik".
+
+---
+
+<div class="eyebrow">// Frame Clauses — GROUPS</div>
+
+## GROUPS — Frame Berdasarkan Peer Group
+
+`GROUPS` dihitung per peer group, bukan per baris. Cocok untuk data yang sudah diagregat per tanggal/periode.
+
+```sql
+-- Contoh: total payment per hari, lalu rolling sum 3 hari terakhir
+SELECT
+  customer_id,
+  DATE_TRUNC('day', payment_date)::date AS pay_day,
+  SUM(amount)                           AS daily_total,
+
+  -- GROUPS 2 PRECEDING → ambil 3 kelompok hari (hari ini + 2 hari sebelumnya)
+  SUM(SUM(amount)) OVER (
+    PARTITION BY customer_id
+    ORDER BY DATE_TRUNC('day', payment_date)
+    GROUPS BETWEEN 2 PRECEDING AND CURRENT ROW
+  ) AS rolling_3day
+
+FROM payment
+GROUP BY customer_id, DATE_TRUNC('day', payment_date)
+ORDER BY customer_id, pay_day
+LIMIT 20;
+```
+
+> `GROUPS` baru ada di PostgreSQL 11+. Jika ada 3 payment di hari yang sama, `GROUPS 1 PRECEDING` tetap hanya "1 langkah mundur", bukan "3 baris mundur".
+
+---
+
 <div class="eyebrow">// Case Study</div>
 
 ## Running Total & Month-over-Month
