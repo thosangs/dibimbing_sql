@@ -356,26 +356,22 @@ FROM p ORDER BY customer_id, day, payment_id LIMIT 20;
 `GROUPS` dihitung per peer group, bukan per baris. Cocok untuk data yang sudah diagregat per tanggal/periode.
 
 ```sql
--- Contoh: total payment per hari, lalu rolling sum 3 hari terakhir
 SELECT
   customer_id,
   DATE_TRUNC('day', payment_date)::date AS pay_day,
-  SUM(amount)                           AS daily_total,
-
-  -- GROUPS 2 PRECEDING → ambil 3 kelompok hari (hari ini + 2 hari sebelumnya)
+  SUM(amount) AS daily_total,
   SUM(SUM(amount)) OVER (
     PARTITION BY customer_id
     ORDER BY DATE_TRUNC('day', payment_date)
     GROUPS BETWEEN 2 PRECEDING AND CURRENT ROW
-  ) AS rolling_3day
-
+  ) AS rolling_3day   -- hari ini + 2 hari sebelumnya (3 peer groups)
 FROM payment
 GROUP BY customer_id, DATE_TRUNC('day', payment_date)
 ORDER BY customer_id, pay_day
 LIMIT 20;
 ```
 
-> `GROUPS` baru ada di PostgreSQL 11+. Jika ada 3 payment di hari yang sama, `GROUPS 1 PRECEDING` tetap hanya "1 langkah mundur", bukan "3 baris mundur".
+> PostgreSQL 11+. `GROUPS 2 PRECEDING` = mundur 2 kelompok-hari, bukan 2 baris. Jika satu hari ada 5 payment, itu tetap dihitung 1 group.
 
 ---
 
