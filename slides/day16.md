@@ -328,6 +328,230 @@ Live coding: cohort analysis, churn, rolling windows — story-driven
 </div>
 
 ---
+
+<div class="eyebrow">// NoSQL · MongoDB</div>
+
+## MongoDB — Kenapa Ada?
+
+<div class="row mt-4">
+<div class="card pop">
+<div class="box-h">Dokumen, bukan tabel</div>
+
+- Data disimpan sebagai **JSON/BSON**
+- Schema fleksibel — tiap dokumen bisa beda field
+- Cocok untuk: katalog produk, event log, profil user, review
+
+</div>
+<div class="card pop">
+<div class="box-h">Atlas playground</div>
+
+Dataset kita: **`sample_mflix`**
+
+Collection `movies` — 23 ribu film dengan field:
+`title`, `year`, `rated`, `runtime`, `genres`, `imdb.rating`, `directors`
+
+</div>
+</div>
+
+---
+
+<div class="eyebrow">// MongoDB · Basic Find</div>
+
+## `find()` — Ambil Dokumen
+
+```js
+// Semua film (limit 20 otomatis di Atlas UI)
+db.movies.find({})
+
+// Proyeksi — pilih field yang mau ditampilkan
+db.movies.find(
+  {},
+  { title: 1, year: 1, "imdb.rating": 1, _id: 0 }
+)
+
+// Sort + Limit
+db.movies.find(
+  {},
+  { title: 1, year: 1, _id: 0 }
+).sort({ year: -1 }).limit(10)
+```
+
+> `1` = tampilkan, `0` = sembunyikan. `_id` selalu muncul kecuali di-set `0`.
+
+---
+
+<div class="eyebrow">// MongoDB · Filter</div>
+
+## Filter — Operator Perbandingan
+
+```js
+// Film setelah tahun 2000 dengan rating IMDb > 8
+db.movies.find({
+  year: { $gt: 2000 },
+  "imdb.rating": { $gt: 8 }
+}, { title: 1, year: 1, "imdb.rating": 1, _id: 0 })
+
+// $in — film dengan genre tertentu
+db.movies.find({
+  genres: { $in: ["Action", "Thriller"] }
+}, { title: 1, genres: 1, _id: 0 }).limit(10)
+
+// $regex — cari judul mengandung kata
+db.movies.find({
+  title: { $regex: "love", $options: "i" }
+}, { title: 1, year: 1, _id: 0 }).limit(10)
+```
+
+---
+
+<div class="eyebrow">// MongoDB · Filter Lanjutan</div>
+
+## Filter — Operator Logika
+
+```js
+// $or — bisa juga pakai $and, $nor
+db.movies.find({
+  $or: [
+    { rated: "G" },
+    { rated: "PG" }
+  ],
+  year: { $gte: 2000 }
+}, { title: 1, rated: 1, year: 1, _id: 0 })
+
+// $exists + $ne — field ada dan bukan null
+db.movies.find({
+  "tomatoes.viewer.rating": { $exists: true, $ne: null },
+  runtime: { $lte: 90 }
+}, { title: 1, runtime: 1, "tomatoes.viewer.rating": 1, _id: 0 })
+  .sort({ runtime: 1 }).limit(10)
+```
+
+---
+
+<div class="eyebrow">// MongoDB · Aggregation</div>
+
+## `aggregate()` — Pipeline seperti SQL
+
+```js
+// GROUP BY genres — hitung jumlah film per genre
+db.movies.aggregate([
+  { $unwind: "$genres" },
+  { $group: {
+      _id: "$genres",
+      total_films: { $sum: 1 },
+      avg_rating: { $avg: "$imdb.rating" },
+      avg_runtime: { $avg: "$runtime" }
+  }},
+  { $sort: { total_films: -1 } },
+  { $limit: 10 }
+])
+```
+
+> `$unwind` — pecah array field (genres) jadi baris terpisah.
+> Setara SQL: `GROUP BY genre` setelah `UNNEST`.
+
+---
+
+<div class="eyebrow">// MongoDB · Math Functions</div>
+
+## Fungsi Matematika dalam Aggregation
+
+```js
+// $sum, $avg, $min, $max per dekade
+db.movies.aggregate([
+  { $match: { "imdb.rating": { $exists: true, $gt: 0 } } },
+  { $group: {
+      _id: { $multiply: [{ $floor: { $divide: ["$year", 10] } }, 10] },
+      film_count: { $sum: 1 },
+      avg_imdb:   { $avg: "$imdb.rating" },
+      max_imdb:   { $max: "$imdb.rating" },
+      min_imdb:   { $min: "$imdb.rating" },
+      total_votes:{ $sum: "$imdb.votes" }
+  }},
+  { $sort: { _id: 1 } }
+])
+```
+
+> `_id` di `$group` = kolom GROUP BY. Bisa ekspresi, bukan hanya field.
+
+---
+
+<div class="eyebrow">// MongoDB · $project</div>
+
+## `$project` — Computed Fields
+
+```js
+// Tambah field baru: rating_category dan age_of_film
+db.movies.aggregate([
+  { $match: { year: { $gte: 1990 }, "imdb.rating": { $gt: 0 } } },
+  { $project: {
+      title: 1,
+      year: 1,
+      imdb_rating: "$imdb.rating",
+      age_years: { $subtract: [2024, "$year"] },
+      rating_cat: {
+        $switch: { branches: [
+          { case: { $gte: ["$imdb.rating", 8] }, then: "Great" },
+          { case: { $gte: ["$imdb.rating", 6] }, then: "Good" }
+        ], default: "Average" }
+      },
+      _id: 0
+  }},
+  { $sort: { imdb_rating: -1 } },
+  { $limit: 15 }
+])
+```
+
+---
+
+<div class="eyebrow">// NoSQL vs SQL · Perbandingan</div>
+
+## Ekuivalensi MongoDB ↔ SQL
+
+<div class="row mt-4" style="font-size:0.85rem">
+<div class="card flat" style="flex:1">
+<div class="box-h">SQL</div>
+
+```sql
+SELECT title, year
+FROM movies
+WHERE year > 2000
+ORDER BY year DESC
+LIMIT 10;
+```
+
+```sql
+SELECT genre, COUNT(*), AVG(rating)
+FROM movies
+GROUP BY genre
+HAVING COUNT(*) > 50;
+```
+
+</div>
+<div class="card flat" style="flex:1">
+<div class="box-h">MongoDB MQL</div>
+
+```js
+db.movies.find(
+  { year: { $gt: 2000 } },
+  { title: 1, year: 1, _id: 0 }
+).sort({ year: -1 }).limit(10)
+```
+
+```js
+db.movies.aggregate([
+  { $unwind: "$genres" },
+  { $group: { _id: "$genres",
+      count: { $sum: 1 },
+      avg_rating: { $avg: "$imdb.rating" }}},
+  { $match: { count: { $gt: 50 } }}
+])
+```
+
+</div>
+</div>
+
+---
 layout: closing
 ---
 
