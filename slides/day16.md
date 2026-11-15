@@ -295,12 +295,12 @@ Contoh: 5 baris payment customer\_id=1, diurutkan payment\_date.
 
 ---
 
-<div class="eyebrow">// Frame Clauses — RANGE dengan Ties</div>
+<div class="eyebrow">// Frame Clauses — ROWS</div>
 
-## RANGE — Hati-hati Kalau Ada Duplikat
+## ROWS — Berdasarkan Posisi Fisik
 
 ```sql
--- DATE_TRUNC: buat banyak payment jatuh di hari yang sama (ada ties)
+-- ROWS: selalu tepat N baris, tidak peduli nilai ORDER BY
 WITH p AS (
   SELECT customer_id, payment_id,
          DATE_TRUNC('day', payment_date) AS day, amount
@@ -310,15 +310,42 @@ SELECT customer_id, payment_id, day, amount,
   SUM(amount) OVER (
     PARTITION BY customer_id ORDER BY day
     ROWS BETWEEN 1 PRECEDING AND CURRENT ROW
-  ) AS rows_1prec,        -- tepat 1 baris fisik sebelumnya
+  ) AS rows_sum_2,       -- selalu: baris ini + 1 baris sebelumnya
   SUM(amount) OVER (
     PARTITION BY customer_id ORDER BY day
-    RANGE BETWEEN CURRENT ROW AND CURRENT ROW
-  ) AS range_same_day     -- semua baris di hari yang sama!
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS rows_running      -- running total kumulatif
 FROM p ORDER BY customer_id, day, payment_id LIMIT 20;
 ```
 
-> **Gotcha**: `ROWS` = N baris fisik. `RANGE` = semua baris dengan nilai ORDER BY yang sama — bisa jauh lebih banyak kalau ada ties.
+> Kalau ada 5 payment di hari yang sama, `ROWS 1 PRECEDING` tetap hanya ambil **1 baris** — yang persis di atasnya secara fisik.
+
+---
+
+<div class="eyebrow">// Frame Clauses — RANGE dengan Ties</div>
+
+## RANGE — Semua Baris dengan Nilai Sama
+
+```sql
+-- RANGE: semua baris dengan nilai ORDER BY identik masuk sekaligus
+WITH p AS (
+  SELECT customer_id, payment_id,
+         DATE_TRUNC('day', payment_date) AS day, amount
+  FROM payment
+)
+SELECT customer_id, payment_id, day, amount,
+  SUM(amount) OVER (
+    PARTITION BY customer_id ORDER BY day
+    RANGE BETWEEN CURRENT ROW AND CURRENT ROW
+  ) AS range_same_day,   -- total semua payment di hari yang SAMA
+  SUM(amount) OVER (
+    PARTITION BY customer_id ORDER BY day
+    -- default frame = RANGE UNBOUNDED PRECEDING TO CURRENT ROW
+  ) AS range_default     -- running total (tapi bisa aneh kalau ada ties!)
+FROM p ORDER BY customer_id, day, payment_id LIMIT 20;
+```
+
+> **Gotcha**: `RANGE` default bisa counter-intuitive — kalau ada 5 payment satu hari, `RANGE CURRENT ROW` ambil semua 5 sekaligus. Pakai `ROWS` kalau ingin N baris fisik.
 
 ---
 
