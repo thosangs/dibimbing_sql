@@ -300,32 +300,26 @@ Contoh: 5 baris payment customer\_id=1, diurutkan payment\_date.
 ## RANGE — Hati-hati Kalau Ada Duplikat
 
 ```sql
--- Gunakan DATE_TRUNC supaya banyak payment jatuh di hari yang sama
 SELECT
   customer_id, payment_id,
   DATE_TRUNC('day', payment_date)::date AS pay_day,
   amount,
-
-  -- ROWS: tepat 1 baris sebelum (fisik)
   SUM(amount) OVER (
     PARTITION BY customer_id
     ORDER BY DATE_TRUNC('day', payment_date)
     ROWS BETWEEN 1 PRECEDING AND CURRENT ROW
-  ) AS rows_1prec,
-
-  -- RANGE: semua baris di hari yang sama (bisa banyak!)
+  ) AS rows_1prec,        -- tepat 1 baris sebelum (fisik)
   SUM(amount) OVER (
     PARTITION BY customer_id
     ORDER BY DATE_TRUNC('day', payment_date)
     RANGE BETWEEN CURRENT ROW AND CURRENT ROW
-  ) AS range_same_day
-
+  ) AS range_same_day     -- semua baris di hari yang sama
 FROM payment
 ORDER BY customer_id, pay_day, payment_id
 LIMIT 30;
 ```
 
-> **Gotcha**: RANGE default (`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`) bisa mahal dan hasilnya counter-intuitive kalau ada ties. Gunakan ROWS kalau yang diinginkan adalah "N baris fisik".
+> **Gotcha**: Gunakan `ROWS` kalau ingin "N baris fisik". `RANGE` default bisa counter-intuitive kalau ada ties — semua baris dengan nilai ORDER BY sama masuk semua sekaligus.
 
 ---
 
